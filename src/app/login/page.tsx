@@ -88,7 +88,7 @@ export default function LoginForm() {
                                     type="button"
                                     variant="ghost"
                                     size="icon"
-                                    className="absolute right-2 top-2 h-8 w-8 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-2 top-1 h-8 w-8 text-gray-400 hover:text-gray-600"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? (
