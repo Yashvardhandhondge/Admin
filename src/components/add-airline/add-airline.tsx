@@ -62,7 +62,6 @@ export default function AddAirlineForm() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        // Handle form submission
     }
 
     return (
