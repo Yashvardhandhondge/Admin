@@ -609,7 +609,7 @@ export default function AddAirlineForm() {
                                             <TableRow key={index}>
                                                 <TableCell>{index + 1}</TableCell>
                                                 <TableCell>
-                                                    <Input placeholder="Question" />
+                                                    <Textarea placeholder="Question" />
                                                 </TableCell>
                                                 <TableCell>
                                                     <Textarea placeholder="Answer" />
