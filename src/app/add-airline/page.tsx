@@ -18,6 +18,10 @@ export default function AddAirlinePage() {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
+                        <BreadcrumbPage>Airline</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
                         <BreadcrumbPage>Add Airline</BreadcrumbPage>
                     </BreadcrumbItem>
                 </BreadcrumbList>

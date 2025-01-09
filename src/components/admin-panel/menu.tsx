@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Ellipsis, LogOut } from "lucide-react";
+import { Ellipsis, LogOut } from 'lucide-react';
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -23,6 +23,13 @@ interface MenuProps {
 export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
   const menuList = getMenuList(pathname);
+
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
@@ -58,13 +65,7 @@ export function Menu({ isOpen }: MenuProps) {
                         <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
                             <Button
-                              variant={
-                                (active === undefined &&
-                                  pathname.startsWith(href)) ||
-                                active
-                                  ? "secondary"
-                                  : "ghost"
-                              }
+                              variant={isActive(href) ? "secondary" : "ghost"}
                               className="w-full justify-start h-10 mb-1"
                               asChild
                             >
@@ -100,11 +101,7 @@ export function Menu({ isOpen }: MenuProps) {
                       <CollapseMenuButton
                         icon={Icon}
                         label={label}
-                        active={
-                          active === undefined
-                            ? pathname.startsWith(href)
-                            : active
-                        }
+                        active={isActive(href)}
                         submenus={submenus}
                         isOpen={isOpen}
                       />
@@ -118,7 +115,7 @@ export function Menu({ isOpen }: MenuProps) {
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => {}}
+                    onClick={() => { }}
                     variant="outline"
                     className="w-full justify-center h-10 mt-5"
                   >
@@ -146,3 +143,4 @@ export function Menu({ isOpen }: MenuProps) {
     </ScrollArea>
   );
 }
+

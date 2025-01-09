@@ -147,7 +147,7 @@ export default function AddAirlineForm() {
                             </div>
                             <div className="space-y-2">
                                 <label>Image</label>
-                                <Input />
+                                <Input className='pt-[6px]' type='file' />
                             </div>
                             <div className="space-y-2">
                                 <label>Founded Date</label>
@@ -380,15 +380,7 @@ export default function AddAirlineForm() {
                                         <TableRow key={index}>
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select origin" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="origin1">Delhi</SelectItem>
-                                                        <SelectItem value="origin2">Mumbai</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <Input placeholder='Origin' />
                                             </TableCell>
                                             <TableCell>
                                                 <Select>
