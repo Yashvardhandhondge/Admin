@@ -1,4 +1,11 @@
-import { SquarePen, LayoutGrid, LucideIcon } from "lucide-react";
+import {
+  Tag,
+  Bookmark,
+  SquarePen,
+  LayoutGrid,
+  LucideIcon,
+  Plane
+} from "lucide-react";
 
 type Submenu = {
   href: string;
@@ -36,10 +43,15 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "/add-airline",
-          label: "Add Airline",
-          icon: SquarePen,
-          submenus: []
+          href: "",
+          label: "Content",
+          icon: Plane,
+          submenus: [
+            {
+              href: "/airlines",
+              label: "Airlines"
+            }
+          ]
         }
       ]
     }
