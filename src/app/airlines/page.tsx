@@ -2,8 +2,8 @@
 
 import { Pencil, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import { Table } from "antd"
 import {
-    Table,
     TableBody,
     TableCell,
     TableHead,
@@ -19,10 +19,12 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import Link from "next/link";
+import { Input } from '@/components/ui/input'
 
 export default function Airline() {
     const airlines = [
         {
+            key: 1,
             sNo: 1,
             id: "101",
             airline: "Uzbekistan Airways",
@@ -32,6 +34,7 @@ export default function Airline() {
             callSign: "UZBEK",
         },
         {
+            key: 2,
             sNo: 2,
             id: "102",
             airline: "SriLankan Airlines",
@@ -41,6 +44,7 @@ export default function Airline() {
             callSign: "SRI LANKAN",
         },
         {
+            key: 3,
             sNo: 3,
             id: "103",
             airline: "SpiceJet Airlines",
@@ -50,17 +54,69 @@ export default function Airline() {
             callSign: "SPICE JET",
         },
         {
+            key: 4,
             sNo: 4,
             id: "104",
-            airline: "Air India",
+            airline: "Emirates Airlines",
             type: "International",
+            iata: "EK",
+            icao: "UAE",
+            callSign: "EMIRATES",
+        },
+        {
+            key: 5,
+            sNo: 5,
+            id: "105",
+            airline: "Qatar Airways",
+            type: "International",
+            iata: "QR",
+            icao: "QTR",
+            callSign: "QATARI",
+        },
+        {
+            key: 6,
+            sNo: 6,
+            id: "106",
+            airline: "American Airlines",
+            type: "International",
+            iata: "AA",
+            icao: "AAL",
+            callSign: "AMERICAN",
+        },
+        {
+            key: 7,
+            sNo: 7,
+            id: "107",
+            airline: "Delta Air Lines",
+            type: "International",
+            iata: "DL",
+            icao: "DAL",
+            callSign: "DELTA",
+        },
+        {
+            key: 8,
+            sNo: 8,
+            id: "108",
+            airline: "British Airways",
+            type: "International",
+            iata: "BA",
+            icao: "BAW",
+            callSign: "SPEEDBIRD",
+        },
+        {
+            key: 9,
+            sNo: 9,
+            id: "109",
+            airline: "Air India",
+            type: "Domestic",
             iata: "AI",
             icao: "AIC",
             callSign: "AIR INDIA",
         },
         {
-            sNo: 5,
-            id: "105",
+            key: 10,
+            sNo: 10,
+            id: "110",
             airline: "IndiGo Airlines",
             type: "Domestic",
             iata: "6E",
@@ -68,51 +124,83 @@ export default function Airline() {
             callSign: "IFLY",
         },
         {
-            sNo: 6,
-            id: "106",
-            airline: "Vistara Airlines",
-            type: "Domestic",
-            iata: "UK",
-            icao: "VTI",
-            callSign: "VISTARA",
-        },
-        {
-            sNo: 7,
-            id: "107",
-            airline: "GoAir Airlines",
-            type: "Domestic",
-            iata: "G8",
-            icao: "GOW",
-            callSign: "GOAIR",
-        },
-        {
-            sNo: 8,
-            id: "108",
-            airline: "AirAsia India",
-            type: "Domestic",
-            iata: "I5",
-            icao: "IAD",
-            callSign: "RED KNIGHT",
-        },
-        {
-            sNo: 9,
-            id: "109",
-            airline: "Air India Express",
+            key: 11,
+            sNo: 11,
+            id: "111",
+            airline: "Singapore Airlines",
             type: "International",
-            iata: "IX",
-            icao: "AXB",
-            callSign: "EXPRESS INDIA",
+            iata: "SQ",
+            icao: "SIA",
+            callSign: "SINGAPORE",
         },
         {
-            sNo: 10,
-            id: "110",
-            airline: "Alliance Air",
-            type: "Domestic",
-            iata: "9I",
-            icao: "LLR",
-            callSign: "ALLIED",
+            key: 12,
+            sNo: 12,
+            id: "112",
+            airline: "Lufthansa",
+            type: "International",
+            iata: "LH",
+            icao: "DLH",
+            callSign: "LUFTHANSA",
         }
-    ]
+
+    ];
+
+    const columns = [
+        {
+            title: 'S.No.',
+            dataIndex: 'sNo',
+            key: 'sNo',
+            width: 80,
+        },
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Airline',
+            dataIndex: 'airline',
+            key: 'airline',
+        },
+        {
+            title: 'Airline Type',
+            dataIndex: 'type',
+            key: 'type',
+        },
+        {
+            title: 'IATA',
+            dataIndex: 'iata',
+            key: 'iata',
+        },
+        {
+            title: 'ICAO',
+            dataIndex: 'icao',
+            key: 'icao',
+        },
+        {
+            title: 'Call Sign',
+            dataIndex: 'callSign',
+            key: 'callSign',
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            width: 100,
+            render: (_: any, record: any) => (
+                <button
+                    className='flex items-center justify-center pl-4'
+                    onClick={() => handleEdit(record)}
+                >
+                    <Pencil size={14} />
+                </button>
+            ),
+        },
+    ];
+
+    const handleEdit = (record: any) => {
+        console.log("Edit record:", record);
+    };
 
     return (
         <ContentLayout title="All Airlines">
@@ -128,49 +216,25 @@ export default function Airline() {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
-                <Button variant="outline" className="flex gap-1 items-center bg-[#BC1110] hover:bg-[#A00D0C] text-white hover:text-white">
-                    <Plus width={14} />
-                    <Link href="/add-airline">Add Airline</Link>
-                </Button>
-            </div>
-            <div className="w-full mx-auto mt-6">
-
-                <div className="border rounded-lg">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[80px]">S.No.</TableHead>
-                                <TableHead>ID</TableHead>
-                                <TableHead>Airline</TableHead>
-                                <TableHead>Airline Type</TableHead>
-                                <TableHead>IATA</TableHead>
-                                <TableHead>ICAO</TableHead>
-                                <TableHead>Call Sign</TableHead>
-                                <TableHead className="w-[80px]">Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {airlines.map((airline) => (
-                                <TableRow key={airline.id}>
-                                    <TableCell>{airline.sNo}</TableCell>
-                                    <TableCell>{airline.id}</TableCell>
-                                    <TableCell>{airline.airline}</TableCell>
-                                    <TableCell>{airline.type}</TableCell>
-                                    <TableCell>{airline.iata}</TableCell>
-                                    <TableCell>{airline.icao}</TableCell>
-                                    <TableCell>{airline.callSign}</TableCell>
-                                    <TableCell>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                            <Pencil className="h-4 w-4" />
-                                            <span className="sr-only">Edit</span>
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                <div className='flex items-center gap-3'>
+                    <Input placeholder="Search Airline" />
+                    <Link href="/add-airline">
+                        <Button variant="outline" className="flex gap-1 items-center bg-[#BC1110] hover:bg-[#A00D0C] text-white hover:text-white">
+                            <Plus width={14} />
+                            Add Airline
+                        </Button>
+                    </Link>
                 </div>
             </div>
+            <div className="w-full mx-auto mt-6">
+                <Table
+                    columns={columns}
+                    dataSource={airlines}
+                    bordered
+                    pagination={{ pageSize: 10 }}
+                />
+            </div>
+
         </ContentLayout>
     )
 }
