@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,16 +17,20 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { useAirlineStore } from '@/store/useAirlineStore'
 
 const formSchema = z.object({
-    email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    LoginId: z.string().nonempty('Login ID is required'),
+    Password: z.string().min(3, 'Password must be at least 6 characters'),
+    AgencyId: z.number().int().positive('Agency ID must be a positive number'),
 })
 
 type FormData = z.infer<typeof formSchema>
 
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false)
+    const { login, loading, error } = useAirlineStore()
+    const router = useRouter()
 
     const {
         register,
@@ -36,9 +41,17 @@ export default function LoginForm() {
     })
 
     const onSubmit = async (data: FormData) => {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        console.log(data)
+        try {
+            await login({
+                ...data,
+                MachineId: '',
+                IPAddress: '',
+            })
+            console.log('Login successful!')
+            router.replace('/')
+        } catch (err) {
+            console.error('Login failed:', err)
+        }
     }
 
     return (
@@ -47,41 +60,41 @@ export default function LoginForm() {
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-3xl font-semibold text-center">Sign in</CardTitle>
                     <CardDescription className="text-center">
-                        Enter your email and password to access your account
+                        Enter your credentials to access your account
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="LoginId">Login ID</Label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
                                 <Input
-                                    {...register('email')}
-                                    id="email"
-                                    placeholder="name@example.com"
+                                    {...register('LoginId')}
+                                    id="LoginId"
+                                    placeholder="Enter your Login ID"
                                     className={cn(
                                         'pl-10',
-                                        errors.email && 'border-red-500 focus-visible:ring-red-500'
+                                        errors.LoginId && 'border-red-500 focus-visible:ring-red-500'
                                     )}
                                 />
                             </div>
-                            {errors.email && (
-                                <p className="text-sm text-red-500">{errors.email.message}</p>
+                            {errors.LoginId && (
+                                <p className="text-sm text-red-500">{errors.LoginId.message}</p>
                             )}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="Password">Password</Label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
                                 <Input
-                                    {...register('password')}
-                                    id="password"
+                                    {...register('Password')}
+                                    id="Password"
                                     type={showPassword ? 'text' : 'password'}
-                                    placeholder='Enter your password'
+                                    placeholder="Enter your password"
                                     className={cn(
                                         'pl-10',
-                                        errors.password && 'border-red-500 focus-visible:ring-red-500'
+                                        errors.Password && 'border-red-500 focus-visible:ring-red-500'
                                     )}
                                 />
                                 <Button
@@ -101,24 +114,32 @@ export default function LoginForm() {
                                     </span>
                                 </Button>
                             </div>
-                            {errors.password && (
-                                <p className="text-sm text-red-500">{errors.password.message}</p>
+                            {errors.Password && (
+                                <p className="text-sm text-red-500">{errors.Password.message}</p>
                             )}
                         </div>
-                        <div className="flex justify-between text-sm">
-                            <Button variant="link" className="px-0 text-primary">
-                                Forgot password?
-                            </Button>
-                            <Button variant="link" className="px-0 text-primary">
-                                Change password
-                            </Button>
+                        <div className="space-y-2">
+                            <Label htmlFor="AgencyId">Agency ID</Label>
+                            <Input
+                                {...register('AgencyId', { valueAsNumber: true })}
+                                id="AgencyId"
+                                type="number"
+                                placeholder="Enter your Agency ID"
+                                className={cn(
+                                    errors.AgencyId && 'border-red-500 focus-visible:ring-red-500'
+                                )}
+                            />
+                            {errors.AgencyId && (
+                                <p className="text-sm text-red-500">{errors.AgencyId.message}</p>
+                            )}
                         </div>
+                        {error && <p className="text-sm text-red-500">{error}</p>}
                         <Button
                             type="submit"
                             className="w-full bg-[#BC1110] hover:bg-[#A00D0C] text-white"
-                            disabled={isSubmitting}
+                            disabled={loading || isSubmitting}
                         >
-                            {isSubmitting ? 'Signing in...' : 'Sign in'}
+                            {loading || isSubmitting ? 'Signing in...' : 'Sign in'}
                         </Button>
                     </form>
                 </CardContent>
