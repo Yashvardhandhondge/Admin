@@ -57,7 +57,7 @@ export default function AddAirlineForm() {
         changeCancellation: '',
         addon: ''
     }])
-    const [resources, setResources] = useState([{ resource: '', url: '' }])
+    const [resources, setResources] = useState([{ resource: '', url: '', category: '' }])
     const [faqs, setFaqs] = useState([{ question: '', answer: '' }])
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -86,6 +86,10 @@ export default function AddAirlineForm() {
                             <div className="space-y-2">
                                 <label>URL</label>
                                 <Textarea placeholder="https://..." />
+                            </div>
+                            <div className="space-y-2">
+                                <label>Canonical Tag</label>
+                                <Input placeholder="https://www.example.com" />
                             </div>
                             <div className="space-y-2">
                                 <label>Title (60 characters)</label>
@@ -118,17 +122,24 @@ export default function AddAirlineForm() {
                                 <Input />
                             </div>
                             <div className="space-y-2">
-                                <label>Airline Type</label>
-                                <Select>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="domestic">Domestic</SelectItem>
-                                        <SelectItem value="international">International</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <label className="font-medium text-gray-700">Airline Type</label>
+                                <div className="flex items-center space-x-4">
+
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox />
+                                        <label htmlFor="domestic" className="text-gray-600">
+                                            Domestic
+                                        </label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox />
+                                        <label htmlFor="international" className="text-gray-600">
+                                            International
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
+
                             <div className="space-y-2">
                                 <label>IATA</label>
                                 <Input />
@@ -191,9 +202,22 @@ export default function AddAirlineForm() {
                                 <label>Tracking URL</label>
                                 <Input />
                             </div>
+
                             <div className="space-y-2 col-span-2">
                                 <label>Office Address</label>
                                 <Textarea />
+                            </div>
+                            <div className="space-y-2">
+                                <label>Country</label>
+                                <Select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="india">India</SelectItem>
+                                        <SelectItem value="usa">USA</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                         </CardContent>
@@ -406,7 +430,7 @@ export default function AddAirlineForm() {
                                                 <Input placeholder="Flight number" />
                                             </TableCell>
                                             <TableCell>
-                                                <Input type="number" />
+                                                <Input type="text" />
                                             </TableCell>
                                             <TableCell>
                                                 <Checkbox />
@@ -521,7 +545,7 @@ export default function AddAirlineForm() {
                     </Card>
                 </TabsContent>
 
-                <TabsContent className='mt-4' value="other">
+                <TabsContent className="mt-4" value="other">
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
@@ -531,7 +555,12 @@ export default function AddAirlineForm() {
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => setResources([...resources, { resource: '', url: '' }])}
+                                        onClick={() =>
+                                            setResources([
+                                                ...resources,
+                                                { resource: '', url: '', category: '' },
+                                            ])
+                                        }
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Add Resource
@@ -553,10 +582,35 @@ export default function AddAirlineForm() {
                                             <TableRow key={index}>
                                                 <TableCell>{index + 1}</TableCell>
                                                 <TableCell>
-                                                    <Input placeholder="Resource name" />
+                                                    <Select
+                                                        value={item.category}
+                                                        onValueChange={(value) => {
+                                                            const newResources = [...resources];
+                                                            newResources[index].category = value;
+                                                            setResources(newResources);
+                                                        }}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select Resources" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Web check In">Web check In</SelectItem>
+                                                            <SelectItem value="Baggage allowance">Baggage allowance</SelectItem>
+                                                            <SelectItem value="Flight Schedule">Flight Schedule</SelectItem>
+                                                            <SelectItem value="Ticket Information">Ticket Information</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Input placeholder="Resource URL" />
+                                                    <Input
+                                                        placeholder="Resource URL"
+                                                        value={item.url}
+                                                        onChange={(e) => {
+                                                            const newResources = [...resources];
+                                                            newResources[index].url = e.target.value;
+                                                            setResources(newResources);
+                                                        }}
+                                                    />
                                                 </TableCell>
                                                 <TableCell>
                                                     <Button
@@ -564,9 +618,9 @@ export default function AddAirlineForm() {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => {
-                                                            const newResources = [...resources]
-                                                            newResources.splice(index, 1)
-                                                            setResources(newResources)
+                                                            const newResources = [...resources];
+                                                            newResources.splice(index, 1);
+                                                            setResources(newResources);
                                                         }}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -579,6 +633,7 @@ export default function AddAirlineForm() {
                             </CardContent>
                         </Card>
 
+                        {/* The FAQ Section */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center justify-between">
@@ -620,9 +675,9 @@ export default function AddAirlineForm() {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => {
-                                                            const newFaqs = [...faqs]
-                                                            newFaqs.splice(index, 1)
-                                                            setFaqs(newFaqs)
+                                                            const newFaqs = [...faqs];
+                                                            newFaqs.splice(index, 1);
+                                                            setFaqs(newFaqs);
                                                         }}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -636,6 +691,7 @@ export default function AddAirlineForm() {
                         </Card>
                     </div>
                 </TabsContent>
+
             </Tabs>
 
             <div className="flex justify-end gap-4">
