@@ -33,7 +33,7 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
     login: async (credentials) => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.post('http://api.nixtour.com/api/CMS/Login', credentials);
+            const response = await axios.post('https://api.nixtour.com/api/CMS/Login', credentials);
             const { Token } = response.data;
             set({ token: Token, loading: false });
             console.log('Login successful, token:', Token);
@@ -45,7 +45,7 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
     fetchAirlines: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.get('http://api.nixtour.com/api/CMS/AirlineList?airlineType=I');
+            const response = await axios.get('https://api.nixtour.com/api/CMS/AirlineList?airlineType=I');
             set({ airlines: response.data.Data, loading: false });
         } catch (err: any) {
             set({ error: err.message || 'Something went wrong!', loading: false });
