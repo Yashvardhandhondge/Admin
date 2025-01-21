@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +35,8 @@ import {
     TabsTrigger,
 } from "@/components/ui/tabs"
 
+import { useAirlineStore } from '../../store/useAirlineStore';
+
 export default function AddAirlineForm() {
     const [date, setDate] = useState<Date>()
     const [content, setContent] = useState([{ type: '', content: '' }])
@@ -63,6 +65,40 @@ export default function AddAirlineForm() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
     }
+
+    const {
+        countries,
+        fetchCountries,
+        loading,
+        contentTypes,
+        fetchContentTypes,
+        aircraftTypes,
+        fetchAircraftTypes,
+        airlineClassTypes,
+        fetchAirlineClassTypes,
+        error,
+        resourceTypeList,
+        fetchResourceTypeList,
+        airlineStations,
+        fetchAirlineStations
+    } = useAirlineStore();
+
+    useEffect(() => {
+        fetchCountries();
+        fetchContentTypes();
+        fetchAircraftTypes();
+        fetchAirlineClassTypes();
+        fetchResourceTypeList();
+        fetchAirlineStations();
+    }, [
+        fetchCountries,
+        fetchContentTypes,
+        fetchAircraftTypes,
+        fetchAirlineClassTypes,
+        fetchResourceTypeList,
+        fetchAirlineStations
+    ]);
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -208,16 +244,24 @@ export default function AddAirlineForm() {
                                 <Textarea />
                             </div>
                             <div className="space-y-2">
-                                <label>Country</label>
-                                <Select>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="india">India</SelectItem>
-                                        <SelectItem value="usa">USA</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <label htmlFor="country">Country</label>
+                                <select className='border px-3 py-2 rounded focus:outline-none' name="" id="">
+                                    <option value="">Select a country</option>
+                                    {loading ? (
+                                        <option>Loading...</option>
+                                    ) : (
+                                        countries.map((country) => (
+                                            <option key={country.CountryId} value={country.CountryId}>
+                                                {country.CountryName}
+                                            </option>
+                                        ))
+                                    )}
+                                    {countries.map((country) => (
+                                        <option key={country.CountryId} value={country.CountryId}>
+                                            {country.CountryName}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
                         </CardContent>
@@ -251,19 +295,27 @@ export default function AddAirlineForm() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {content.map((item, index) => (
+                                    {content.map((_item, index) => (
                                         <TableRow key={index}>
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select type" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="type1">Type 1</SelectItem>
-                                                        <SelectItem value="type2">Type 2</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <select className='border px-3 py-2 rounded focus:outline-none w-full shadow-sm' name="" id="">
+                                                    <option value="">Select content type</option>
+                                                    {loading ? (
+                                                        <option>Loading...</option>
+                                                    ) : (
+                                                        contentTypes.map((contentType) => (
+                                                            <option key={contentType.ContentTypeId} value={contentType.ContentTypeId}>
+                                                                {contentType.ContentTypeName}
+                                                            </option>
+                                                        ))
+                                                    )}
+                                                    {contentTypes.map((contentType) => (
+                                                        <option key={contentType.ContentTypeId} value={contentType.ContentTypeId}>
+                                                            {contentType.ContentTypeName}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </TableCell>
                                             <TableCell>
                                                 <Input />
@@ -321,15 +373,23 @@ export default function AddAirlineForm() {
                                         <TableRow key={index}>
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select type" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="type1">Boeing 737</SelectItem>
-                                                        <SelectItem value="type2">Airbus A320</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <select className='border px-3 py-2 rounded focus:outline-none w-full shadow-sm' name="" id="">
+                                                    <option value="">Select aircraft type</option>
+                                                    {loading ? (
+                                                        <option>Loading...</option>
+                                                    ) : (
+                                                        aircraftTypes.map((aircraftType) => (
+                                                            <option key={aircraftType.AircraftTypeId} value={aircraftType.AircraftTypeId}>
+                                                                {aircraftType.AircraftTypeName}
+                                                            </option>
+                                                        ))
+                                                    )}
+                                                    {aircraftTypes.map((aircraftType) => (
+                                                        <option key={aircraftType.AircraftTypeId} value={aircraftType.AircraftTypeId}>
+                                                            {aircraftType.AircraftTypeName}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </TableCell>
                                             <TableCell>
                                                 <Input type="number" />
@@ -407,15 +467,23 @@ export default function AddAirlineForm() {
                                                 <Input placeholder='Origin' />
                                             </TableCell>
                                             <TableCell>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select destination" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="dest1">Bangalore</SelectItem>
-                                                        <SelectItem value="dest2">Chennai</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <select className='border px-3 py-2 rounded focus:outline-none w-full shadow-sm' name="" id="">
+                                                    <option value="">Select destination</option>
+                                                    {loading ? (
+                                                        <option>Loading...</option>
+                                                    ) : (
+                                                        airlineStations.map((station) => (
+                                                            <option key={station.StationId} value={station.StationId}>
+                                                                {station.StationName}
+                                                            </option>
+                                                        ))
+                                                    )}
+                                                    {airlineStations.map((station) => (
+                                                        <option key={station.StationId} value={station.StationId}>
+                                                            {station.StationName}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </TableCell>
                                             <TableCell>
                                                 <Input type="time" />
@@ -500,16 +568,20 @@ export default function AddAirlineForm() {
                                         <TableRow key={index}>
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select class" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="economy">Economy</SelectItem>
-                                                        <SelectItem value="business">Business</SelectItem>
-                                                        <SelectItem value="first">First Class</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                {loading ? (
+                                                    <span>Loading...</span>
+                                                ) : error ? (
+                                                    <span>{error}</span>
+                                                ) : (
+                                                    <select className='border px-3 py-2 rounded focus:outline-none w-full shadow-sm'>
+                                                        <option value="">Select Class Type</option>
+                                                        {airlineClassTypes.map((classType) => (
+                                                            <option key={classType.ClassId} value={classType.ClassId}>
+                                                                {classType.ClassName}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <Input placeholder="Fare type" />
@@ -582,24 +654,14 @@ export default function AddAirlineForm() {
                                             <TableRow key={index}>
                                                 <TableCell>{index + 1}</TableCell>
                                                 <TableCell>
-                                                    <Select
-                                                        value={item.category}
-                                                        onValueChange={(value) => {
-                                                            const newResources = [...resources];
-                                                            newResources[index].category = value;
-                                                            setResources(newResources);
-                                                        }}
-                                                    >
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select Resources" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="Web check In">Web check In</SelectItem>
-                                                            <SelectItem value="Baggage allowance">Baggage allowance</SelectItem>
-                                                            <SelectItem value="Flight Schedule">Flight Schedule</SelectItem>
-                                                            <SelectItem value="Ticket Information">Ticket Information</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
+                                                    <select className='border px-3 py-2 rounded focus:outline-none w-full shadow-sm'>
+                                                        <option value="">Select Resource</option>
+                                                        {resourceTypeList.map((resource) => (
+                                                            <option key={resource.ResourceTypeId} value={resource.ResourceTypeId}>
+                                                                {resource.ResourceTypeName}
+                                                            </option>
+                                                        ))}
+                                                    </select>
                                                 </TableCell>
                                                 <TableCell>
                                                     <Input
