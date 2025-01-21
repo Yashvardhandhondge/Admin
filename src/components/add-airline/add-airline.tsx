@@ -66,37 +66,38 @@ export default function AddAirlineForm() {
         e.preventDefault()
     }
 
-    const { countries, fetchCountries, loading } = useAirlineStore();
-    const { contentTypes, fetchContentTypes } = useAirlineStore();
-    const { fetchAircraftTypes, aircraftTypes } = useAirlineStore();
-    const { airlineClassTypes, fetchAirlineClassTypes, error } = useAirlineStore();
-    const { resourceTypeList, fetchResourceTypeList } = useAirlineStore();
-    const { airlineStations, fetchAirlineStations } = useAirlineStore();
-
+    const {
+        countries,
+        fetchCountries,
+        loading,
+        contentTypes,
+        fetchContentTypes,
+        aircraftTypes,
+        fetchAircraftTypes,
+        airlineClassTypes,
+        fetchAirlineClassTypes,
+        error,
+        resourceTypeList,
+        fetchResourceTypeList,
+        airlineStations,
+        fetchAirlineStations
+    } = useAirlineStore();
 
     useEffect(() => {
         fetchCountries();
-    }, [fetchCountries]);
-
-    useEffect(() => {
         fetchContentTypes();
-    }, [fetchContentTypes]);
-
-    useEffect(() => {
         fetchAircraftTypes();
-    }, [fetchAircraftTypes]);
-
-    useEffect(() => {
         fetchAirlineClassTypes();
-    }, [fetchAirlineClassTypes]);
-
-    useEffect(() => {
         fetchResourceTypeList();
-    }, [fetchResourceTypeList]);
-
-    useEffect(() => {
         fetchAirlineStations();
-    }, [fetchAirlineStations]);
+    }, [
+        fetchCountries,
+        fetchContentTypes,
+        fetchAircraftTypes,
+        fetchAirlineClassTypes,
+        fetchResourceTypeList,
+        fetchAirlineStations
+    ]);
 
 
     return (
