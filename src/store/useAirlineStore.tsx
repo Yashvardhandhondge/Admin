@@ -47,6 +47,72 @@ interface AirlineStation {
     CountryName: string;
 }
 
+interface AirlineSaveRequest {
+    AirlineId: number;
+    Url: string;
+    CanonicalTag: string;
+    Title: string;
+    Description: string;
+    Keywords: string;
+    AirlineName: string;
+    FullName: string;
+    Domestic: string;
+    International: string;
+    IataCode: string;
+    IcaoCode: string;
+    CallSign: string;
+    CheckInUrl: string;
+    ImageUrl: string;
+    FoundedDate: string;
+    BaseHub: string;
+    FleetSize: string;
+    AvgFleetAge: string;
+    Website: string;
+    FlightStatusUrl: string;
+    Email: string;
+    CSNo: string;
+    HLNo: string;
+    FlightTrackingUrl: string;
+    OfficeAddress: string;
+    CountryId: number;
+    Contents: {
+        ContentTypeId: number;
+        Content: string;
+    }[];
+    Fleets: {
+        AircraftTypeId: number;
+        Total: number;
+    }[];
+    Routes: {
+        Origin: string;
+        Destination: string;
+        DepartureTime: string;
+        ArrivalTime: string;
+        Duration: string;
+        Flight: string;
+        StartingPrice: number;
+        CheapestFlight: string;
+        HighestSelling: string;
+    }[];
+    Baggages: {
+        ClassTypeId: number;
+        FareType: string;
+        Luggage: string;
+        ChangePolicy: string;
+        Addons: string;
+    }[];
+    Resources: {
+        ResourceTypeId: number;
+        ResourceUrl: string;
+    }[];
+    Faqs: {
+        Question: string;
+        Answer: string;
+    }[];
+    SessionId: string;
+    CreateId: number;
+}
+
 interface AirlineStore {
     airlines: Airline[];
     countries: Country[];
@@ -66,6 +132,7 @@ interface AirlineStore {
     fetchAirlineClassTypes: () => Promise<void>;
     fetchResourceTypeList: () => Promise<void>;
     fetchAirlineStations: () => Promise<void>;
+    saveAirline: (airlineData: AirlineSaveRequest) => Promise<void>;
 }
 
 export const useAirlineStore = create<AirlineStore>((set) => ({
@@ -84,7 +151,7 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
     login: async (credentials) => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.post('https://api.nixtour.com/api/CMS/Login', credentials);
+            const response = await axios.post('https://api.nixtour.com/api/User/Login', credentials);
             const { Token } = response.data;
             set({ token: Token, loading: false });
             console.log('Login successful, token:', Token);
@@ -97,7 +164,7 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
     fetchAirlines: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.get('https://api.nixtour.com/api/CMS/AirlineList?airlineType=I');
+            const response = await axios.get('https://api.nixtour.com/api/Web/AirlineList');
             set({ airlines: response.data.Data, loading: false });
         } catch (err: any) {
             set({ error: err.message || 'Something went wrong!', loading: false });
@@ -165,6 +232,21 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
             set({ airlineStations: response.data.Data, loading: false });
         } catch (err: any) {
             set({ error: err.message || 'Failed to fetch airline stations!', loading: false });
+        }
+    },
+    saveAirline: async (airlineData) => {
+        set({ loading: true, error: null });
+        try {
+            const response = await axios.post('https://api.nixtour.com/api/CMS/AirlineSave', airlineData, {
+                headers: {
+                    'accept': 'text/plain',
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log('Airline saved successfully:', response.data);
+            set({ loading: false });
+        } catch (err: any) {
+            set({ error: err.message || 'Failed to save airline!', loading: false });
         }
     },
 }));
