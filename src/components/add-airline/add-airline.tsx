@@ -56,7 +56,7 @@ const initialFormData = {
     Baggages: [],
     Resources: [],
     Faqs: [],
-    SessionId: "syst",
+    SessionId: localStorage.getItem('sessionId') || "syst",
     CreateId: 101
 }
 
@@ -120,7 +120,7 @@ export default function AddAirlineForm() {
                 setFormData((prev) => ({
                     ...prev,
                     ...parsedData,
-                    SessionId: prev.SessionId || "syst",
+                    SessionId: prev.SessionId || localStorage.getItem('sessionId') || "syst",
                 }));
             } catch (error) {
                 console.error('Error parsing airline data:', error);
@@ -157,7 +157,10 @@ export default function AddAirlineForm() {
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => handleNavigation('back')}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleNavigation('back');
+                        }}
                         disabled={currentTab === TAB_ORDER[0]}
                     >
                         Back
@@ -167,7 +170,15 @@ export default function AddAirlineForm() {
                         {currentTab === TAB_ORDER[TAB_ORDER.length - 1] ? (
                             <Button className="bg-[#BC1110] hover:bg-[#A00D0C] text-white" type="submit">Save</Button>
                         ) : (
-                            <Button type="button" onClick={() => handleNavigation('next')}>Next</Button>
+                            <Button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleNavigation('next');
+                                }}
+                            >
+                                Next
+                            </Button>
                         )}
                     </div>
                 </div>

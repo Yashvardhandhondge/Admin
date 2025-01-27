@@ -48,7 +48,7 @@ export default function LoginForm() {
         IPAddress: 'test',
       })
       console.log('Login successful!')
-      router.replace('/airlines')
+      router.push('/airlines')
     } catch (err) {
       console.error('Login failed:', err)
     }
