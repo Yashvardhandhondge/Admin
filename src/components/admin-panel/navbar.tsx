@@ -1,8 +1,6 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { UserNav } from "@/components/admin-panel/user-nav";
 import { SheetMenu } from "@/components/admin-panel/sheet-menu";
-import { Button } from "../ui/button";
-import Link from "next/link";
 
 
 interface NavbarProps {
@@ -18,9 +16,9 @@ export function Navbar({ title }: NavbarProps) {
           <h1 className="font-bold">{title}</h1>
         </div>
         <div className="flex flex-1 items-center justify-end">
-          <Button variant="outline" className="hidden lg:block mr-2">
+          {/* <Button variant="outline" className="hidden lg:block mr-2">
             <Link href="/login">Login</Link>
-          </Button>
+          </Button> */}
           <ModeToggle />
           <UserNav />
         </div>

@@ -2,11 +2,11 @@ import { create } from 'zustand';
 import axios from 'axios';
 
 interface Airline {
+    AirlineType: string;
+    IataCode: any;
+    IcaoCode: any;
     AirlineId: string;
     AirlineName: string;
-    CmdMessage?: string;
-    IATA?: string;
-    ICAO?: string;
     CallSign?: string;
 }
 
@@ -18,11 +18,6 @@ interface Country {
 interface ContentType {
     ContentTypeId: string;
     ContentTypeName: string;
-}
-
-interface LoginResponse {
-    Token: string;
-    Expiry: string;
 }
 
 interface AircraftType {
@@ -47,83 +42,29 @@ interface AirlineStation {
     CountryName: string;
 }
 
-interface AirlineSaveRequest {
-    AirlineId: number;
-    Url: string;
-    CanonicalTag: string;
-    Title: string;
-    Description: string;
-    Keywords: string;
-    AirlineName: string;
-    FullName: string;
-    Domestic: string;
-    International: string;
-    IataCode: string;
-    IcaoCode: string;
-    CallSign: string;
-    CheckInUrl: string;
-    ImageUrl: string;
-    FoundedDate: string;
-    BaseHub: string;
-    FleetSize: string;
-    AvgFleetAge: string;
-    Website: string;
-    FlightStatusUrl: string;
-    Email: string;
-    CSNo: string;
-    HLNo: string;
-    FlightTrackingUrl: string;
-    OfficeAddress: string;
-    CountryId: number;
-    Contents: {
-        ContentTypeId: number;
-        Content: string;
-    }[];
-    Fleets: {
-        AircraftTypeId: number;
-        Total: number;
-    }[];
-    Routes: {
-        Origin: string;
-        Destination: string;
-        DepartureTime: string;
-        ArrivalTime: string;
-        Duration: string;
-        Flight: string;
-        StartingPrice: number;
-        CheapestFlight: string;
-        HighestSelling: string;
-    }[];
-    Baggages: {
-        ClassTypeId: number;
-        FareType: string;
-        Luggage: string;
-        ChangePolicy: string;
-        Addons: string;
-    }[];
-    Resources: {
-        ResourceTypeId: number;
-        ResourceUrl: string;
-    }[];
-    Faqs: {
-        Question: string;
-        Answer: string;
-    }[];
-    SessionId: string;
-    CreateId: number;
+interface City {
+    CityName: string;
+    CountryName: string;
+    AirportName: string;
+    AirportCode: string;
+    CountryCode: string;
+    ProvinceCode: string;
+    ProvinceName: string;
+    IsCity: boolean;
 }
 
 interface AirlineStore {
     airlines: Airline[];
     countries: Country[];
     contentTypes: ContentType[];
-    loading: boolean;
-    error: string | null;
-    token: string | null;
     aircraftTypes: AircraftType[];
     airlineClassTypes: AirlineClassType[];
     resourceTypeList: ResourceTypeList[];
     airlineStations: AirlineStation[];
+    cities: City[];
+    loading: boolean;
+    error: string | null;
+    SessionId: string | null;
     login: (credentials: { LoginId: string; Password: string; AgencyId: number; MachineId?: string; IPAddress?: string }) => Promise<void>;
     fetchAirlines: () => Promise<void>;
     fetchCountries: () => Promise<void>;
@@ -132,7 +73,7 @@ interface AirlineStore {
     fetchAirlineClassTypes: () => Promise<void>;
     fetchResourceTypeList: () => Promise<void>;
     fetchAirlineStations: () => Promise<void>;
-    saveAirline: (airlineData: AirlineSaveRequest) => Promise<void>;
+    fetchCities: (prefix: string) => Promise<void>;
 }
 
 export const useAirlineStore = create<AirlineStore>((set) => ({
@@ -143,35 +84,45 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
     airlineClassTypes: [],
     resourceTypeList: [],
     airlineStations: [],
+    cities: [],
     loading: false,
     error: null,
-    token: null,
+    SessionId: null,
 
-    // Login API
     login: async (credentials) => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.post('https://api.nixtour.com/api/User/Login', credentials);
-            const { Token } = response.data;
-            set({ token: Token, loading: false });
-            console.log('Login successful, token:', Token);
+            const response = await axios.post('https://api.nixtour.com/api/Login/Login', credentials);
+            const SessionId = response.data.Data.SessionId;
+            localStorage.setItem('SessionId', SessionId);
+            localStorage.setItem('UserName', response.data.Data.UserName);
+            localStorage.setItem('AgencyName', response.data.Data.AgencyName);
+            set({ SessionId: SessionId, loading: false });
         } catch (err: any) {
             set({ error: err.message || 'Login failed!', loading: false });
         }
     },
 
-    // Fetch Airlines API
     fetchAirlines: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.get('https://api.nixtour.com/api/Web/AirlineList');
+            const sessionId = localStorage.getItem('SessionId');
+            const response = await axios.get(`https://api.nixtour.com/api/CMS/AirlineSearch`, {
+                params: { SessionId: sessionId },
+                headers: {
+                    'accept': 'text/plain',
+                },
+            });
             set({ airlines: response.data.Data, loading: false });
         } catch (err: any) {
-            set({ error: err.message || 'Something went wrong!', loading: false });
+            console.error("Error fetching airlines:", err.response?.data || err.message);
+            set({
+                error: err.response?.data || { message: 'Something went wrong!' },
+                loading: false,
+            });
         }
     },
 
-    // Fetch Countries API
     fetchCountries: async () => {
         set({ loading: true, error: null });
         try {
@@ -182,7 +133,6 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
         }
     },
 
-    // Fetch Content Types API
     fetchContentTypes: async () => {
         set({ loading: true, error: null });
         try {
@@ -203,7 +153,6 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
         }
     },
 
-    // Fetch Airline Class Types API
     fetchAirlineClassTypes: async () => {
         set({ loading: true, error: null });
         try {
@@ -214,7 +163,6 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
         }
     },
 
-    // Fetch Resource Type List API
     fetchResourceTypeList: async () => {
         set({ loading: true, error: null });
         try {
@@ -234,19 +182,32 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
             set({ error: err.message || 'Failed to fetch airline stations!', loading: false });
         }
     },
-    saveAirline: async (airlineData) => {
+
+    fetchCities: async (prefix) => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.post('https://api.nixtour.com/api/CMS/AirlineSave', airlineData, {
-                headers: {
-                    'accept': 'text/plain',
-                    'Content-Type': 'application/json',
-                },
-            });
-            console.log('Airline saved successfully:', response.data);
-            set({ loading: false });
+            const url = `https://fares.nixtour.com/Online3s/Services/MainService.asmx/GetCities?strInputXML=%3CGetCities%3E%3CCompCode%3EKN2182%3C/CompCode%3E%3CPrefix%3E${encodeURIComponent(
+                prefix
+            )}%3C/Prefix%3E%3CLangCode%3EGB%3C/LangCode%3E%3CProduct%3EAIR%3C/Product%3E%3CCountryCode%3E%3C/CountryCode%3E%3C/GetCities%3E`;
+
+            const response = await axios.get(url, { headers: { 'Content-Type': 'text/xml' } });
+            const regex = /<string[^>]*>(.*?)<\/string>/;
+            const match = response.data.match(regex);
+
+            if (match && match[1]) {
+                const citiesJsonString = match[1].replace(/([a-zA-Z0-9_]+)(?=\s*:)/g, '"$1"');
+                const cities = JSON.parse(citiesJsonString) || [];
+                set({ cities: cities, loading: false });
+            } else {
+                set({ cities: [], loading: false, error: 'No city data found in the response.' });
+            }
         } catch (err: any) {
-            set({ error: err.message || 'Failed to save airline!', loading: false });
+            set({
+                cities: [],
+                loading: false,
+                error: err.message || 'Failed to fetch cities!',
+            });
         }
     },
 }));
+
