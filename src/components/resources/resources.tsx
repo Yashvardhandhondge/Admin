@@ -1,159 +1,180 @@
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Button } from '../ui/button'
-import { Plus, Trash2 } from 'lucide-react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
-import { Input } from '../ui/input'
-import { useAirlineStore } from '../../store/useAirlineStore';
-import { Textarea } from '../ui/textarea'
+"use client"
 
+import React, { useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Plus, Trash2 } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { useAirlineStore } from "@/store/useAirlineStore"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-function Resources() {
+interface ResourcesProps {
+    data: {
+        Resources: Array<{ ResourceTypeId: number; ResourceUrl: string }>
+        Faqs: Array<{ Question: string; Answer: string }>
+    }
+    updateData: (data: Partial<ResourcesProps["data"]>) => void
+}
 
-    const [resources, setResources] = React.useState([{ resource: '', url: '', category: '' }]);
-    const [faqs, setFaqs] = React.useState([{ question: '', answer: '' }]);
-    const {
-        resourceTypeList,
-        loading
-    } = useAirlineStore();
+export default function Resources({ data, updateData }: ResourcesProps) {
+    const { fetchResourceTypeList, resourceTypeList } = useAirlineStore()
+
+    useEffect(() => {
+        fetchResourceTypeList()
+    }, [fetchResourceTypeList])
+
+    const addResource = () => {
+        const newResources = [...data.Resources, { ResourceTypeId: 0, ResourceUrl: "" }]
+        updateData({ Resources: newResources })
+    }
+
+    const removeResource = (index: number) => {
+        const newResources = [...data.Resources]
+        newResources.splice(index, 1)
+        updateData({ Resources: newResources })
+    }
+
+    const updateResource = (
+        index: number,
+        field: keyof ResourcesProps["data"]["Resources"][0],
+        value: string | number,
+    ) => {
+        const newResources = [...data.Resources]
+        newResources[index] = { ...newResources[index], [field]: value }
+        updateData({ Resources: newResources })
+    }
+
+    const addFaq = () => {
+        const newFaqs = [...data.Faqs, { Question: "", Answer: "" }]
+        updateData({ Faqs: newFaqs })
+    }
+
+    const removeFaq = (index: number) => {
+        const newFaqs = [...data.Faqs]
+        newFaqs.splice(index, 1)
+        updateData({ Faqs: newFaqs })
+    }
+
+    const updateFaq = (index: number, field: keyof ResourcesProps["data"]["Faqs"][0], value: string) => {
+        const newFaqs = [...data.Faqs]
+        newFaqs[index] = { ...newFaqs[index], [field]: value }
+        updateData({ Faqs: newFaqs })
+    }
+
     return (
-        <div>
-            <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                            Useful Resources
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                    setResources([
-                                        ...resources,
-                                        { resource: '', url: '', category: '' },
-                                    ])
-                                }
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Resource
-                            </Button>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>S.No.</TableHead>
-                                    <TableHead>Resource</TableHead>
-                                    <TableHead>URL</TableHead>
-                                    <TableHead>Action</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {resources.map((item, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>
-                                            <select className='border px-3 py-2 rounded focus:outline-none w-full shadow-sm'>
-                                                <option value="">Select Resource</option>
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                        Useful Resources
+                        <Button type="button" variant="outline" size="sm" onClick={addResource}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Resource
+                        </Button>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>S.No.</TableHead>
+                                <TableHead>Resource</TableHead>
+                                <TableHead>URL</TableHead>
+                                <TableHead>Action</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {data?.Resources?.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{index + 1}</TableCell>
+                                    <TableCell>
+                                        <Select
+                                            value={item.ResourceTypeId.toString()}
+                                            onValueChange={(value) => updateResource(index, "ResourceTypeId", Number.parseInt(value))}
+                                        >
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select Resource" />
+                                            </SelectTrigger>
+                                            <SelectContent>
                                                 {resourceTypeList.map((resource) => (
-                                                    <option key={resource.ResourceTypeId} value={resource.ResourceTypeId}>
+                                                    <SelectItem key={resource.ResourceTypeId} value={resource.ResourceTypeId.toString()}>
                                                         {resource.ResourceTypeName}
-                                                    </option>
+                                                    </SelectItem>
                                                 ))}
-                                            </select>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Input
-                                                placeholder="Resource URL"
-                                                value={item.url}
-                                                onChange={(e) => {
-                                                    const newResources = [...resources];
-                                                    newResources[index].url = e.target.value;
-                                                    setResources(newResources);
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => {
-                                                    const newResources = [...resources];
-                                                    newResources.splice(index, 1);
-                                                    setResources(newResources);
-                                                }}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-
-                {/* The FAQ Section */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                            FAQ
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setFaqs([...faqs, { question: '', answer: '' }])}
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add FAQ
-                            </Button>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>S.No.</TableHead>
-                                    <TableHead>Question</TableHead>
-                                    <TableHead>Answer</TableHead>
-                                    <TableHead>Action</TableHead>
+                                            </SelectContent>
+                                        </Select>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Input
+                                            placeholder="Resource URL"
+                                            value={item.ResourceUrl}
+                                            onChange={(e) => updateResource(index, "ResourceUrl", e.target.value)}
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Button type="button" variant="ghost" size="sm" onClick={() => removeResource(index)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {faqs.map((faq, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>
-                                            <Textarea placeholder="Question" />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Textarea placeholder="Answer" />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => {
-                                                    const newFaqs = [...faqs];
-                                                    newFaqs.splice(index, 1);
-                                                    setFaqs(newFaqs);
-                                                }}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </div>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                        FAQ
+                        <Button type="button" variant="outline" size="sm" onClick={addFaq}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add FAQ
+                        </Button>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>S.No.</TableHead>
+                                <TableHead>Question</TableHead>
+                                <TableHead>Answer</TableHead>
+                                <TableHead>Action</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {data?.Faqs?.map((faq, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{index + 1}</TableCell>
+                                    <TableCell>
+                                        <Textarea
+                                            placeholder="Question"
+                                            value={faq.Question}
+                                            onChange={(e) => updateFaq(index, "Question", e.target.value)}
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Textarea
+                                            placeholder="Answer"
+                                            value={faq.Answer}
+                                            onChange={(e) => updateFaq(index, "Answer", e.target.value)}
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Button type="button" variant="ghost" size="sm" onClick={() => removeFaq(index)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </div>
     )
 }
 
-export default Resources

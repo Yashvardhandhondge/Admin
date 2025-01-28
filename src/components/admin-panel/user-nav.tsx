@@ -21,6 +21,12 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
+
+const handleLogout = () => {
+  localStorage.removeItem("SessionId");
+  window.location.href = "/";
+}
+
 export function UserNav() {
   return (
     <DropdownMenu>
@@ -34,7 +40,9 @@ export function UserNav() {
               >
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="#" alt="Avatar" />
-                  <AvatarFallback className="bg-transparent">XY</AvatarFallback>
+                  <AvatarFallback className="bg-transparent">
+                    <User className="w-5 h-5" />
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -46,9 +54,9 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">xyz</p>
+            <p className="text-sm font-medium leading-none">{localStorage.getItem("UserName")}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              xyz@example.com
+              {localStorage.getItem("AgencyName")}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -68,7 +76,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="hover:cursor-pointer" onClick={() => { }}>
+        <DropdownMenuItem className="hover:cursor-pointer" onClick={handleLogout}>
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
           Sign out
         </DropdownMenuItem>

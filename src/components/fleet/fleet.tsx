@@ -1,93 +1,118 @@
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Button } from '../ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
-import { Input } from '../ui/input'
+'use client'
+
+import React, { useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
 import { Plus, Trash2 } from 'lucide-react'
-import { useAirlineStore } from '../../store/useAirlineStore';
+import { useAirlineStore } from '@/store/useAirlineStore'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-function Fleet() {
-    const [fleet, setFleet] = React.useState([{ aircraftType: '', total: '' }]);
-    const {
-        aircraftTypes,
-        loading
-    } = useAirlineStore();
-
-    return (
-        <div>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                        Fleet
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setFleet([...fleet, { aircraftType: '', total: '' }])}
-                        >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Aircraft
-                        </Button>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>S.No.</TableHead>
-                                <TableHead>Aircraft Type</TableHead>
-                                <TableHead>Total</TableHead>
-                                <TableHead>Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {fleet.map((item, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{index + 1}</TableCell>
-                                    <TableCell>
-                                        <select className='border px-3 py-2 rounded focus:outline-none w-full shadow-sm' name="" id="">
-                                            <option value="">Select aircraft type</option>
-                                            {loading ? (
-                                                <option>Loading...</option>
-                                            ) : (
-                                                aircraftTypes.map((aircraftType) => (
-                                                    <option key={aircraftType.AircraftTypeId} value={aircraftType.AircraftTypeId}>
-                                                        {aircraftType.AircraftTypeName}
-                                                    </option>
-                                                ))
-                                            )}
-                                            {aircraftTypes.map((aircraftType) => (
-                                                <option key={aircraftType.AircraftTypeId} value={aircraftType.AircraftTypeId}>
-                                                    {aircraftType.AircraftTypeName}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Input type="number" />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => {
-                                                const newFleet = [...fleet]
-                                                newFleet.splice(index, 1)
-                                                setFleet(newFleet)
-                                            }}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
-    )
+interface FleetProps {
+    data: {
+        Fleets: Array<{ AircraftTypeId: number; Total: number }>
+    };
+    updateData: (data: Partial<FleetProps['data']>) => void;
 }
 
-export default Fleet
+export default function Fleet({ data, updateData }: FleetProps) {
+    const { fetchAircraftTypes, aircraftTypes, loading } = useAirlineStore();
+
+    useEffect(() => {
+        fetchAircraftTypes()
+    }, [fetchAircraftTypes])
+
+    const addFleet = () => {
+        const newFleets = [...data.Fleets, { AircraftTypeId: 0, Total: 0 }];
+        updateData({ Fleets: newFleets });
+    };
+
+    const removeFleet = (index: number) => {
+        const newFleets = [...data.Fleets];
+        newFleets.splice(index, 1);
+        updateData({ Fleets: newFleets });
+    };
+
+    const updateFleet = (index: number, field: 'AircraftTypeId' | 'Total', value: number) => {
+        const newFleets = [...data.Fleets];
+        newFleets[index] = { ...newFleets[index], [field]: value };
+        updateData({ Fleets: newFleets });
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                    Fleet
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addFleet}
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Aircraft
+                    </Button>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>S.No.</TableHead>
+                            <TableHead>Aircraft Type</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data?.Fleets?.map((item, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>
+                                    <Select
+                                        value={item?.AircraftTypeId?.toString()}
+                                        onValueChange={(value) => updateFleet(index, 'AircraftTypeId', parseInt(value))}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select aircraft type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {loading ? (
+                                                <SelectItem value="0">Loading...</SelectItem>
+                                            ) : (
+                                                aircraftTypes.map((aircraftType) => (
+                                                    <SelectItem key={aircraftType?.AircraftTypeId} value={aircraftType.AircraftTypeId.toString()}>
+                                                        {aircraftType?.AircraftTypeName}
+                                                    </SelectItem>
+                                                ))
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="number"
+                                        value={item.Total}
+                                        onChange={(e) => updateFleet(index, 'Total', parseInt(e.target.value))}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeFleet(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
+}

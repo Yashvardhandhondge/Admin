@@ -31,6 +31,11 @@ export function Menu({ isOpen }: MenuProps) {
     return pathname.startsWith(href);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("SessionId");
+    window.location.href = "/";
+  }
+
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
       <nav className="mt-8 h-full w-full">
@@ -127,6 +132,7 @@ export function Menu({ isOpen }: MenuProps) {
                         "whitespace-nowrap",
                         isOpen === false ? "opacity-0 hidden" : "opacity-100"
                       )}
+                      onClick={handleLogout}
                     >
                       Sign out
                     </p>

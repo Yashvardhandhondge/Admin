@@ -14,14 +14,29 @@ import {
 import Link from "next/link";
 import { Input } from '@/components/ui/input';
 import { useAirlineStore } from '@/store/useAirlineStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Airline() {
     const { airlines, loading, error, fetchAirlines } = useAirlineStore();
+    const router = useRouter();
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchAirlines();
     }, [fetchAirlines]);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const filteredAirlines = airlines?.filter((airline) =>
+        airline.AirlineName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        airline.AirlineType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        airline.IataCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        airline.IcaoCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        airline.CallSign?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const columns = [
         {
@@ -75,8 +90,119 @@ export default function Airline() {
         },
     ];
 
-    const handleEdit = (record: any) => {
+    const handleEdit = async (record: { id: string }) => {
         console.log("Edit record:", record);
+
+        try {
+            const sessionId = 'syst';
+            const url = `https://api.nixtour.com/api/CMS/AirlineEdit?sessionId=${sessionId}&airlineId=${record.id}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'accept': 'text/plain',
+                },
+            });
+
+            if (response.ok) {
+                const airlineData = await response.json();
+                console.log("Fetched Airline Data:", airlineData);
+
+                const {
+                    CmdStatus,
+                    CmdMessage,
+                    URL,
+                    CanonicalTag,
+                    Title,
+                    Description,
+                    Keywords,
+                    AirlineId,
+                    AirlineName,
+                    FullName,
+                    Domestic,
+                    International,
+                    IataCode,
+                    IcaoCode,
+                    CallSign,
+                    CheckInUrl,
+                    ImageUrl,
+                    FoundedDate,
+                    BaseHub,
+                    FleetSize,
+                    AvgFleetAge,
+                    Website,
+                    FlightStatusUrl,
+                    Email,
+                    CSNo,
+                    HLNo,
+                    FlightTrackingUrl,
+                    OfficeAddress,
+                    CountryId,
+                    CountryName,
+                    MyProperty,
+                    AirlineContents,
+                    AirlineFleets,
+                    AirlineRoutes,
+                    AirlineBaggages,
+                    AirlineUsefulResources,
+                    AirlineFAQs,
+                } = airlineData.Data;
+
+                const structuredData = {
+                    Contents: AirlineContents || [],
+                    Fleets: AirlineFleets || [],
+                    Routes: AirlineRoutes || [],
+                    Baggages: AirlineBaggages || [],
+                    Resources: AirlineUsefulResources || [],
+                    Faqs: AirlineFAQs || [],
+                };
+
+                console.log("Structured Data:", structuredData);
+
+                const airlineDataString = JSON.stringify({
+                    CmdStatus,
+                    CmdMessage,
+                    URL,
+                    CanonicalTag,
+                    Title,
+                    Description,
+                    Keywords,
+                    AirlineId,
+                    AirlineName,
+                    FullName,
+                    Domestic,
+                    International,
+                    IataCode,
+                    IcaoCode,
+                    CallSign,
+                    CheckInUrl,
+                    ImageUrl,
+                    FoundedDate,
+                    BaseHub,
+                    FleetSize,
+                    AvgFleetAge,
+                    Website,
+                    FlightStatusUrl,
+                    Email,
+                    CSNo,
+                    HLNo,
+                    FlightTrackingUrl,
+                    OfficeAddress,
+                    CountryId,
+                    CountryName,
+                    MyProperty,
+                    ...structuredData,
+                });
+
+                const query = `airlineId=${AirlineId}&SessionId=${sessionId}&airlineData=${encodeURIComponent(airlineDataString)}`;
+                router.push(`/add-airline?${query}`);
+
+            } else {
+                console.error("Error fetching airline data", await response.text());
+            }
+        } catch (error) {
+            console.error("Error during API call:", error);
+        }
     };
 
     if (loading) return <div>Loading...</div>;
@@ -97,7 +223,11 @@ export default function Airline() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className='flex items-center gap-3'>
-                    <Input placeholder="Search Airline" />
+                    <Input
+                        placeholder="Search Airline"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                    />
                     <Link href="/add-airline">
                         <Button variant="outline" className="flex gap-1 items-center bg-[#BC1110] hover:bg-[#A00D0C] text-white hover:text-white">
                             <Plus width={14} />
@@ -109,14 +239,14 @@ export default function Airline() {
             <div className="w-full mx-auto mt-6">
                 <Table
                     columns={columns}
-                    dataSource={airlines.map((airline, index) => ({
+                    dataSource={filteredAirlines?.map((airline, index) => ({
                         key: index + 1,
                         sNo: index + 1,
                         id: airline.AirlineId,
                         airline: airline.AirlineName,
-                        type: airline.CmdMessage || 'N/A',
-                        iata: airline.IATA,
-                        icao: airline.ICAO,
+                        type: airline.AirlineType || 'N/A',
+                        iata: airline.IataCode,
+                        icao: airline.IcaoCode,
                         callSign: airline.CallSign || 'N/A',
                     }))}
                     bordered
