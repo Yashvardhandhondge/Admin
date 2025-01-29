@@ -24,7 +24,7 @@ const TAB_ORDER = ["meta", "airline", "content", "fleet", "routes", "baggage", "
 
 const initialFormData = {
     AirlineId: 0,
-    Url: "",
+    URL: "",
     CanonicalTag: "",
     Title: "",
     Description: "",

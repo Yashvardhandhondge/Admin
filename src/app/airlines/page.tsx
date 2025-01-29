@@ -94,7 +94,7 @@ export default function Airline() {
         console.log("Edit record:", record);
 
         try {
-            const sessionId = 'syst';
+            const sessionId = localStorage.getItem('sessionId') || 'syst';
             const url = `https://api.nixtour.com/api/CMS/AirlineEdit?sessionId=${sessionId}&airlineId=${record.id}`;
 
             const response = await fetch(url, {
