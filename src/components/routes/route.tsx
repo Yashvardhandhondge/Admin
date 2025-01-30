@@ -27,7 +27,7 @@ interface RouteProps {
 }
 
 export default function Route({ data, updateData }: RouteProps) {
-    const { fetchAirlineStations, airlineStations, loading } = useAirlineStore();
+    const { fetchAirlineStations } = useAirlineStore();
 
     useEffect(() => {
         fetchAirlineStations()
