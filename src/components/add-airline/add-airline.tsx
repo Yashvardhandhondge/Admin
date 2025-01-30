@@ -120,6 +120,7 @@ export default function AddAirlineForm() {
                 setFormData((prev) => ({
                     ...prev,
                     ...parsedData,
+
                     Routes: parsedData.Routes.map((route: any) => ({
                         ...route,
                         Duration: route.TotDuration,
