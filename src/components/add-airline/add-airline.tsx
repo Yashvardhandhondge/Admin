@@ -24,7 +24,7 @@ const TAB_ORDER = ["meta", "airline", "content", "fleet", "routes", "baggage", "
 
 const initialFormData = {
     AirlineId: 0,
-    Url: "",
+    URL: "",
     CanonicalTag: "",
     Title: "",
     Description: "",
@@ -120,6 +120,25 @@ export default function AddAirlineForm() {
                 setFormData((prev) => ({
                     ...prev,
                     ...parsedData,
+                    Routes: parsedData.Routes.map((route: any) => ({
+                        ...route,
+                        Duration: route.TotDuration,
+                        CheapestFlight: route.IsCheapFlight || "N",
+                        HighestSelling: route.IsHighestSelling || "N",
+                        Flight: route.FlightName || "",
+                    })),
+
+                    Resources: parsedData.Resources.map((resource: any) => ({
+                        ...resource,
+                        ResourceUrl: resource.URL || "",
+                    })),
+
+                    Baggages: parsedData.Baggages.map((baggage: any) => ({
+                        ...baggage,
+                        ClassTypeId: baggage.ClassId || 0,
+                    })),
+
+
                     SessionId: prev.SessionId || localStorage.getItem('sessionId') || "syst",
                 }));
             } catch (error) {

@@ -106,7 +106,7 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
     fetchAirlines: async () => {
         set({ loading: true, error: null });
         try {
-            const sessionId = localStorage.getItem('SessionId');
+            const sessionId = localStorage.getItem('SessionId') || 'syst';
             const response = await axios.get(`https://api.nixtour.com/api/CMS/AirlineSearch`, {
                 params: { SessionId: sessionId },
                 headers: {

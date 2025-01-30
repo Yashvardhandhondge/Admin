@@ -132,7 +132,13 @@ export default function AirLineInfo({ data, updateData }: AirlineInfoProps) {
                         id="FoundedDate"
                         name="FoundedDate"
                         type="date"
-                        value={data.FoundedDate}
+                        value={
+                            (data.FoundedDate &&
+                                new Date(new Date(data.FoundedDate).getTime() - new Date().getTimezoneOffset() * 60000)
+                                    .toISOString()
+                                    .split("T")[0]) ||
+                            ""
+                        }
                         onChange={(e) => handleDateChange(e.target.value)}
                     />
                 </div>

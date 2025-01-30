@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 interface MetaTagsProps {
     data: {
-        Url: string
+        URL: string
         CanonicalTag: string
         Title: string
         Description: string
@@ -16,10 +16,9 @@ interface MetaTagsProps {
 }
 
 export default function MetaTags({ data, updateData }: MetaTagsProps) {
-    // Handle input changes and pass updated values to parent component
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
-        updateData({ [name]: value }) // Update parent formData
+        updateData({ [name]: value })
     }
 
     return (
@@ -30,12 +29,12 @@ export default function MetaTags({ data, updateData }: MetaTagsProps) {
             <CardContent className="space-y-4">
                 {/* URL Input */}
                 <div className="space-y-2">
-                    <Label htmlFor="Url">URL</Label>
+                    <Label htmlFor="URL">URL</Label>
                     <Input
-                        id="Url"
-                        name="Url"
+                        id="URL"
+                        name="URL"
                         placeholder="https://..."
-                        value={data.Url}
+                        value={data.URL}
                         onChange={handleChange}
                     />
                 </div>
