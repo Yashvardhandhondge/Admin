@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,13 +13,29 @@ interface MetaTagsProps {
         Keywords: string
     }
     updateData: (data: Partial<MetaTagsProps["data"]>) => void
+    onValidationChange: (isValid: boolean) => void
 }
 
-export default function MetaTags({ data, updateData }: MetaTagsProps) {
+export default function MetaTags({ data, updateData, onValidationChange }: MetaTagsProps) {
+    const [errors, setErrors] = useState<{ [key: string]: string }>({})
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         updateData({ [name]: value })
     }
+
+    useEffect(() => {
+        const validate = () => {
+            const newErrors: { [key: string]: string } = {}
+            if (!data.Title) newErrors.Title = "Title is required."
+            if (!data.Description) newErrors.Description = "Description is required."
+            if (!data.Keywords) newErrors.Keywords = "Keywords are required."
+            setErrors(newErrors)
+            onValidationChange(Object.keys(newErrors).length === 0)
+        }
+
+        validate()
+    }, [data, onValidationChange])
 
     return (
         <Card>
@@ -27,7 +43,6 @@ export default function MetaTags({ data, updateData }: MetaTagsProps) {
                 <CardTitle>Meta Tags</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {/* URL Input */}
                 <div className="space-y-2">
                     <Label htmlFor="URL">URL</Label>
                     <Input
@@ -39,7 +54,6 @@ export default function MetaTags({ data, updateData }: MetaTagsProps) {
                     />
                 </div>
 
-                {/* Canonical Tag Input */}
                 <div className="space-y-2">
                     <Label htmlFor="CanonicalTag">Canonical Tag</Label>
                     <Input
@@ -51,7 +65,6 @@ export default function MetaTags({ data, updateData }: MetaTagsProps) {
                     />
                 </div>
 
-                {/* Title Input */}
                 <div className="space-y-2">
                     <Label htmlFor="Title">Title (60 characters)</Label>
                     <Textarea
@@ -62,10 +75,11 @@ export default function MetaTags({ data, updateData }: MetaTagsProps) {
                         maxLength={60}
                         rows={2}
                     />
+                    {errors.Title && <div className="text-sm text-red-500">{errors.Title}</div>}
                     <div className="text-sm text-gray-500">{data?.Title?.length || 0} / 60</div>
                 </div>
 
-                {/* Description Input */}
+
                 <div className="space-y-2">
                     <Label htmlFor="Description">Description (165 characters)</Label>
                     <Textarea
@@ -76,10 +90,10 @@ export default function MetaTags({ data, updateData }: MetaTagsProps) {
                         maxLength={165}
                         rows={4}
                     />
+                    {errors.Description && <div className="text-sm text-red-500">{errors.Description}</div>}
                     <div className="text-sm text-gray-500">{data?.Description?.length || 0} / 165</div>
                 </div>
 
-                {/* Keywords Input */}
                 <div className="space-y-2">
                     <Label htmlFor="Keywords">Keywords</Label>
                     <Textarea
@@ -89,6 +103,7 @@ export default function MetaTags({ data, updateData }: MetaTagsProps) {
                         value={data.Keywords}
                         onChange={handleChange}
                     />
+                    {errors.Keywords && <div className="text-sm text-red-500">{errors.Keywords}</div>}
                 </div>
             </CardContent>
         </Card>

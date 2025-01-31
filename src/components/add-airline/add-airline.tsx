@@ -63,6 +63,7 @@ const initialFormData = {
 export default function AddAirlineForm() {
     const [currentTab, setCurrentTab] = useState(TAB_ORDER[0])
     const [formData, setFormData] = useState(initialFormData)
+    const [isFormValid, setIsFormValid] = useState(false)
 
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -98,12 +99,40 @@ export default function AddAirlineForm() {
     }
 
     const handleNavigation = (direction: 'next' | 'back') => {
-        const currentIndex = TAB_ORDER.indexOf(currentTab)
+        const currentIndex = TAB_ORDER.indexOf(currentTab);
         const newIndex = direction === 'next'
             ? Math.min(currentIndex + 1, TAB_ORDER.length - 1)
-            : Math.max(currentIndex - 1, 0)
-        setCurrentTab(TAB_ORDER[newIndex])
-    }
+            : Math.max(currentIndex - 1, 0);
+
+        if (direction === 'next') {
+            if (currentTab === "meta") {
+                const { Title, Description, Keywords } = formData;
+                if (!Title || !Description || !Keywords) {
+                    toast.error("Please fill in all required fields in the Meta Tags section.");
+                    return;
+                }
+            }
+
+            if (currentTab === "airline") {
+                const { AirlineName, IataCode, IcaoCode, CallSign, CheckInUrl, BaseHub, Website, FleetSize, OfficeAddress, CountryId, FlightStatusUrl, FlightTrackingUrl, CSNo } = formData;
+                if (!AirlineName || !IataCode || !IcaoCode || !CallSign || !CheckInUrl || !BaseHub || !Website || !FleetSize || !OfficeAddress || !CountryId || !FlightStatusUrl || !FlightTrackingUrl || !CSNo) {
+                    toast.error("Please fill in all required fields in the Airline section.");
+                    return;
+                }
+            }
+
+            if (currentTab === "routes") {
+                const invalidRoutes = formData.Routes.some((route: any) => !route.Origin || !route.Destination || !route.Duration);
+                if (invalidRoutes) {
+                    toast.error("Please fill in all required fields in the Routes section.");
+                    return;
+                }
+            }
+        }
+
+        setCurrentTab(TAB_ORDER[newIndex]);
+    };
+
 
     const resetFormData = () => {
         setFormData(initialFormData)
@@ -162,11 +191,11 @@ export default function AddAirlineForm() {
 
                     {TAB_ORDER.map(tab => (
                         <TabsContent key={tab} className="mt-4" value={tab}>
-                            {tab === "meta" && <MetaTags data={formData} updateData={(data) => updateFormData("meta", data)} />}
-                            {tab === "airline" && <AirlineInfo data={formData} updateData={(data) => updateFormData("airline", data)} />}
+                            {tab === "meta" && <MetaTags data={formData} updateData={(data) => updateFormData("meta", data)} onValidationChange={setIsFormValid} />}
+                            {tab === "airline" && <AirlineInfo data={formData} updateData={(data) => updateFormData("airline", data)} onValidationChange={setIsFormValid} />}
                             {tab === "content" && <Content data={{ Contents: formData.Contents }} updateData={(data) => updateFormData("content", data)} />}
                             {tab === "fleet" && <Fleet data={{ Fleets: formData.Fleets }} updateData={(data) => updateFormData("fleet", data)} />}
-                            {tab === "routes" && <Routes data={{ Routes: formData.Routes }} updateData={(data) => updateFormData("routes", { Routes: data.Routes })} />}
+                            {tab === "routes" && <Routes data={{ Routes: formData.Routes }} updateData={(data) => updateFormData("routes", { Routes: data.Routes })} onValidationChange={setIsFormValid} />}
                             {tab === "baggage" && <Baggage data={{ Baggages: formData.Baggages }} updateData={(data) => updateFormData("baggage", { Baggages: data.Baggages })} />}
                             {tab === "resources" && <Resources data={{ Resources: formData.Resources, Faqs: formData.Faqs }} updateData={(data) => updateFormData("resources", data)} />}
                         </TabsContent>
@@ -186,15 +215,15 @@ export default function AddAirlineForm() {
                         Back
                     </Button>
                     <div className="flex gap-4">
-                        <Button type="button" variant="outline" onClick={resetFormData}>Clear</Button>
+                        <Button onClick={resetFormData} type="button" variant="outline">Clear</Button>
                         {currentTab === TAB_ORDER[TAB_ORDER.length - 1] ? (
-                            <Button className="bg-[#BC1110] hover:bg-[#A00D0C] text-white" type="submit">Save</Button>
+                            <Button className="bg-[#BC1110] hover:bg-[#A00D0C] text-white" type="submit" disabled={!isFormValid}>Save</Button>
                         ) : (
                             <Button
                                 type="button"
                                 onClick={(e) => {
-                                    e.preventDefault();
-                                    handleNavigation('next');
+                                    e.preventDefault()
+                                    handleNavigation('next')
                                 }}
                             >
                                 Next
