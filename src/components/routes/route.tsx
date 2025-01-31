@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -24,10 +24,12 @@ interface RouteProps {
         }>
     };
     updateData: (data: Partial<RouteProps['data']>) => void;
+    onValidationChange: (isValid: boolean) => void
 }
 
-export default function Route({ data, updateData }: RouteProps) {
+export default function Route({ data, updateData, onValidationChange }: RouteProps) {
     const { fetchAirlineStations } = useAirlineStore();
+    const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
     useEffect(() => {
         fetchAirlineStations()
@@ -59,13 +61,33 @@ export default function Route({ data, updateData }: RouteProps) {
         newRoutes[index] = {
             ...newRoutes[index],
             [field]: field === 'CheapestFlight' || field === 'HighestSelling'
-                ? (value ? 'Y' : 'N') // Convert boolean to "Y"/"N"
+                ? (value ? 'Y' : 'N')
                 : field === 'StartingPrice'
-                    ? Number(value) // Convert to a number
+                    ? Number(value)
                     : value
         };
         updateData({ Routes: newRoutes });
     };
+
+    useEffect(() => {
+        const validate = () => {
+            const newErrors: { [key: string]: string } = {}
+            data.Routes.forEach((route, index) => {
+                if (!route.Origin) newErrors[`Origin-${index}`] = "Origin is required."
+                if (!route.Destination) newErrors[`Destination-${index}`] = "Destination is required."
+                if (!route.DepartureTime) newErrors[`DepartureTime-${index}`] = "Departure time is required."
+                if (!route.ArrivalTime) newErrors[`ArrivalTime-${index}`] = "Arrival time is required."
+                if (!route.Duration) newErrors[`Duration-${index}`] = "Duration is required."
+                if (!route.Flight) newErrors[`Flight-${index}`] = "Flight number is required."
+                if (!route.StartingPrice) newErrors[`StartingPrice-${index}`] = "Starting price is required."
+            })
+
+            setErrors(newErrors)
+            onValidationChange(Object.keys(newErrors).length === 0)
+        }
+
+        validate()
+    }, [data, onValidationChange])
 
     return (
         <Card>
@@ -110,6 +132,7 @@ export default function Route({ data, updateData }: RouteProps) {
                                         value={route.Origin}
                                         onChange={(e) => updateRoute(index, 'Origin', e.target.value)}
                                     />
+                                    {errors[`Origin-${index}`] && <div className="text-xs text-red-500">{errors[`Origin-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Input
@@ -117,6 +140,7 @@ export default function Route({ data, updateData }: RouteProps) {
                                         value={route.Destination}
                                         onChange={(e) => updateRoute(index, 'Destination', e.target.value)}
                                     />
+                                    {errors[`Destination-${index}`] && <div className="text-xs text-red-500">{errors[`Destination-${index}`]}</div>}
                                     {/* <Select
                                         value={route.Destination}
                                         onValueChange={(value) => updateRoute(index, 'Destination', value)}
@@ -143,6 +167,7 @@ export default function Route({ data, updateData }: RouteProps) {
                                         value={route.DepartureTime}
                                         onChange={(e) => updateRoute(index, 'DepartureTime', e.target.value)}
                                     />
+                                    {errors[`DepartureTime-${index}`] && <div className="text-xs text-red-500">{errors[`DepartureTime-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Input
@@ -150,13 +175,16 @@ export default function Route({ data, updateData }: RouteProps) {
                                         value={route.ArrivalTime}
                                         onChange={(e) => updateRoute(index, 'ArrivalTime', e.target.value)}
                                     />
+                                    {errors[`ArrivalTime-${index}`] && <div className="text-xs text-red-500">{errors[`ArrivalTime-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Input
+                                        type='time'
                                         placeholder="2h 30m"
                                         value={route.Duration}
                                         onChange={(e) => updateRoute(index, 'Duration', e.target.value)}
                                     />
+                                    {errors[`Duration-${index}`] && <div className="text-xs text-red-500">{errors[`Duration-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Input
@@ -164,6 +192,7 @@ export default function Route({ data, updateData }: RouteProps) {
                                         value={route.Flight}
                                         onChange={(e) => updateRoute(index, 'Flight', e.target.value)}
                                     />
+                                    {errors[`Flight-${index}`] && <div className="text-xs text-red-500">{errors[`Flight-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Input
@@ -171,6 +200,7 @@ export default function Route({ data, updateData }: RouteProps) {
                                         value={route.StartingPrice.toString()}
                                         onChange={(e) => updateRoute(index, 'StartingPrice', e.target.value)}
                                     />
+                                    {errors[`StartingPrice-${index}`] && <div className="text-xs text-red-500">{errors[`StartingPrice-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Checkbox

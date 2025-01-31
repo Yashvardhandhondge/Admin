@@ -42,6 +42,9 @@ export default function LoginForm() {
 
   const onSubmit = async (data: FormData) => {
     try {
+      // Prevent form from submitting as a GET request
+      event?.preventDefault();
+
       await login({
         ...data,
         MachineId: 'test',
