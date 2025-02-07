@@ -53,6 +53,10 @@ interface City {
     IsCity: boolean;
 }
 
+interface UploadImageResponse {
+    Data: string;
+}
+
 interface AirlineStore {
     airlines: Airline[];
     countries: Country[];
@@ -74,6 +78,7 @@ interface AirlineStore {
     fetchResourceTypeList: () => Promise<void>;
     fetchAirlineStations: () => Promise<void>;
     fetchCities: (prefix: string) => Promise<void>;
+    uploadImage: (file: File) => Promise<{ CmdStatus: number; ImageName?: string; CmdMessage?: string }>
 }
 
 export const useAirlineStore = create<AirlineStore>((set) => ({
@@ -88,6 +93,8 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
     loading: false,
     error: null,
     SessionId: null,
+
+
 
     login: async (credentials) => {
         set({ loading: true, error: null });
@@ -209,5 +216,41 @@ export const useAirlineStore = create<AirlineStore>((set) => ({
             });
         }
     },
+    uploadImage: async (file: File) => {
+        set({ loading: true, error: null });
+        try {
+            const formData = new FormData();
+            formData.append("image", file);
+
+            const response = await axios.post("https://api.nixtour.com/api/Image/Upload", formData, {
+                headers: {
+                    accept: "text/plain",
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            set({ loading: false });
+
+            if (response.data.Data && response.data.Data.CmdStatus === 1 && response.data.Data.ImageName) {
+                console.log("Uploaded Image Name:", response.data.Data.ImageName);
+                return {
+                    CmdStatus: 1,
+                    ImageName: response.data.Data.ImageName, // Updated key
+                    CmdMessage: "Image uploaded successfully",
+                };
+            } else {
+                return {
+                    CmdStatus: 0,
+                    CmdMessage: response.data.Data.CmdMessage || "Image upload failed",
+                };
+            }
+        } catch (err: any) {
+            set({ error: err.message || "Image upload failed!", loading: false });
+            return {
+                CmdStatus: 0,
+                CmdMessage: err.message || "Image upload failed",
+            };
+        }
+    }
 }));
 
