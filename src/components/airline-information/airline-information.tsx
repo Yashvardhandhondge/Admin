@@ -9,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useAirlineStore } from "@/store/useAirlineStore"
 
-
 interface AirlineInfoProps {
     data: {
         AirlineName: string
@@ -41,6 +40,7 @@ interface AirlineInfoProps {
 export default function AirLineInfo({ data, updateData, onValidationChange }: AirlineInfoProps) {
     const { countries, fetchCountries, loading } = useAirlineStore()
     const [countryOptions, setCountryOptions] = useState<{ value: number; label: string }[]>([])
+    const { uploadImage } = useAirlineStore()
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
@@ -90,13 +90,29 @@ export default function AirLineInfo({ data, updateData, onValidationChange }: Ai
             if (!data.FlightStatusUrl) newErrors.FlightStatusUrl = "Flight Status URL is required."
             if (!data.FlightTrackingUrl) newErrors.FlightTrackingUrl = "Tracking URL is required."
             if (!data.CSNo) newErrors.CSNo = "Customer Service No. is required."
-
             setErrors(newErrors)
             onValidationChange(Object.keys(newErrors).length === 0)
         }
 
         validate()
     }, [data, onValidationChange])
+
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            try {
+                const response = await uploadImage(file)
+                if (response.CmdStatus === 1 && response.ImageName) {
+                    updateData({ ImageUrl: response.ImageName })
+                    console.log("Uploaded ImageName:", response.ImageName)
+                } else {
+                    console.error("Image upload failed:", response.CmdMessage)
+                }
+            } catch (error) {
+                console.error("Error uploading image:", error)
+            }
+        }
+    }
 
     return (
         <Card>
@@ -154,11 +170,11 @@ export default function AirLineInfo({ data, updateData, onValidationChange }: Ai
                     <Label htmlFor="CheckInUrl">Check-in URL</Label>
                     <Input id="CheckInUrl" name="CheckInUrl" value={data.CheckInUrl} onChange={handleChange} />
                     {errors.CheckInUrl && <p className="text-sm text-red-500">{errors.CheckInUrl}</p>}
-
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="ImageUrl">Upload Image</Label>
-                    <Input id="ImageUrl" name="ImageUrl" value={data.ImageUrl} onChange={handleChange} />
+                    <Input id="ImageUrl" type="file" name="ImageUrl" onChange={handleImageUpload} accept="image/*" />
+                    {data.ImageUrl && <p className="text-sm text-gray-600">Uploaded: {data.ImageUrl}</p>}
                     {errors.ImageUrl && <p className="text-sm text-red-500">{errors.ImageUrl}</p>}
                 </div>
                 <div className="space-y-2">
@@ -197,7 +213,6 @@ export default function AirLineInfo({ data, updateData, onValidationChange }: Ai
                     <Label htmlFor="Website">Website</Label>
                     <Input id="Website" name="Website" value={data.Website} onChange={handleChange} />
                     {errors.Website && <p className="text-sm text-red-500">{errors.Website}</p>}
-
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="FlightStatusUrl">Flight Status URL</Label>
@@ -208,7 +223,6 @@ export default function AirLineInfo({ data, updateData, onValidationChange }: Ai
                     <Label htmlFor="Email">Email</Label>
                     <Input id="Email" name="Email" type="email" value={data.Email} onChange={handleChange} />
                     {errors.Email && <p className="text-sm text-red-500">{errors.Email}</p>}
-
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="CSNo">Customer Service No.</Label>
