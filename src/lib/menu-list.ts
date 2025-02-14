@@ -43,6 +43,10 @@ export function getMenuList(pathname: string): Group[] {
             {
               href: "/airlines",
               label: "Airlines"
+            },
+            {
+              href: "/offers",
+              label: "Offers"
             }
           ]
         }
