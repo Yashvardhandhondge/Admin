@@ -36,7 +36,7 @@ export function PageDataTab({ control }: PageDataTabProps) {
                                             </Button>
                                             <Input
                                                 type="file"
-                                                accept="image/*"
+                                                accept=".webp"
                                                 onChange={(e) => onChange(e.target.files?.[0])}
                                                 ref={ref}
                                             />
@@ -60,7 +60,7 @@ export function PageDataTab({ control }: PageDataTabProps) {
                                             </Button>
                                             <Input
                                                 type="file"
-                                                accept="image/*"
+                                                accept=".webp"
                                                 onChange={(e) => onChange(e.target.files?.[0])}
                                                 ref={ref}
                                             />
