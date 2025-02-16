@@ -43,7 +43,7 @@ export function DetailsTab({ control }: DetailsTabProps) {
                     />
                     <FormField
                         control={control}
-                        name="termsAndCondition"
+                        name="termsConditions"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Terms and Condition</FormLabel>

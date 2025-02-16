@@ -54,6 +54,21 @@ export function MetaDataTab({ control }: MetaDataTabProps) {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={control}
+                        name="canonicalTag"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Keywords</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        placeholder="Enter keywords separated by commas" 
+                                        {...field} 
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
                 </CardContent>
             </Card >
         </TabsContent >

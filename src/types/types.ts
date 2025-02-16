@@ -31,4 +31,5 @@ export interface FormValues {
   createId: number;
   isActive: string;
   services: Array<{ service: string; minBooking: number; discount: string }>;
+  canonicalTag: string;
 }
