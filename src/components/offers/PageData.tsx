@@ -1,4 +1,4 @@
-import type { Control } from "react-hook-form"
+import type { Control, UseFormReturn } from "react-hook-form"
 import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -7,13 +7,37 @@ import { TabsContent } from "@/components/ui/tabs"
 import { Upload } from "lucide-react"
 import type { FormValues } from "../../types/types"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import { useEffect, useState } from "react"
 
 interface PageDataTabProps {
     control: Control<FormValues>
+    form: UseFormReturn<FormValues, any, undefined>
 }
 
+interface OfferType {
+    OfferTypeId: number
+    OfferTypeName: string
+}
 
-export function PageDataTab({ control }: PageDataTabProps) {
+export function PageDataTab({ control, form }: PageDataTabProps) {
+    const [offerTypes, setOfferTypes] = useState<OfferType[]>([])
+
+    useEffect(() => {
+        const fetchOfferTypes = async () => {
+            try {
+                const response = await fetch('https://api.nixtour.com/api/List/OfferTypeList')
+                const data = await response.json()
+                if (data.Success) {
+                    setOfferTypes(data.Data)
+                }
+            } catch (error) {
+                console.error('Error fetching offer types:', error)
+            }
+        }
+
+        fetchOfferTypes()
+    }, [])
+
     return (
         <TabsContent value="page" className="space-y-4">
             <Card>
@@ -70,28 +94,60 @@ export function PageDataTab({ control }: PageDataTabProps) {
                             )}
                         />
                     </div>
-                    <FormField
-                        control={control}
-                        name="offerType"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Offer Type</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={control}
+                            name="offerTypeName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Offer Type</FormLabel>
+                                    <Select 
+                                        onValueChange={(e)=>{
+                                            form.setValue("offerTypeId", offerTypes.find(type => type.OfferTypeName === e)?.OfferTypeId || 0)
+                                            field.onChange(e)
+                                        }}
+                                        value={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue defaultValue="" placeholder="Select offer type">
+                                                    {offerTypes.find(type => type.OfferTypeName === field.value)?.OfferTypeName || "Select offer type"}
+                                                </SelectValue>
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {offerTypes.map((type) => (
+                                                <SelectItem 
+                                                    key={type.OfferTypeId} 
+                                                    value={type.OfferTypeName}
+                                                >
+                                                    {type.OfferTypeName} (ID: {type.OfferTypeId})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={control}
+                            name="offerTypeId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Offer Type ID</FormLabel>
                                     <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select offer type" />
-                                        </SelectTrigger>
+                                        <Input 
+                                            {...field}
+                                            type="number"
+                                            disabled
+                                            placeholder="Enter Offer Type ID"
+                                        />
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="airline">Airline</SelectItem>
-                                        <SelectItem value="holiday">Holiday</SelectItem>
-                                        <SelectItem value="hotels">Hotels</SelectItem>
-                                        <SelectItem value="others">Others</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormItem>
-                        )}
-                    />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </CardContent>
             </Card>
         </TabsContent>

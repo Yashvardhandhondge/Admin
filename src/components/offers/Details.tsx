@@ -19,7 +19,7 @@ export function DetailsTab({ control }: DetailsTabProps) {
                 <CardContent className="space-y-4">
                     <FormField
                         control={control}
-                        name="discountDescription"
+                        name="discountDesc"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Discount Description</FormLabel>

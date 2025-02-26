@@ -38,7 +38,7 @@ export default function OffersPage() {
 
     const fetchOffers = async () => {
         try {
-            const response = await fetch(`https://api.nixtour.com/api/CMSOffer/OfferSearch?sessionid=${0}&createid=${101}`, {
+            const response = await fetch(`https://api.nixtour.com/api/CMSOffer/OfferSearch?sessionid=syst&createid=${101}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,6 +46,7 @@ export default function OffersPage() {
             });
 
             const result = await response.json();
+            
             if (result.Success) {
                 setOffers(result.Data);
             } else {
@@ -62,10 +63,25 @@ export default function OffersPage() {
         setSearchQuery(e.target.value);
     };
 
-    const filteredOffers = offers?.filter((offer) =>
-        offer.OfferTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        offer.OfferTypeName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Add this helper function to correctly parse dd-mm-yyyy dates
+    const parseCustomDate = (dateStr: string) => {
+        const [day, month, year] = dateStr.split('-');
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    };
+
+    const filteredOffers = offers?.filter((offer) => {
+        // Filter by search query
+        const matchesSearch = offer.OfferTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            offer.OfferTypeName.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        // Filter out inactive offers
+        const isActive = offer.IsActive !== "N";
+        
+        // Filter out expired offers
+        const endDate = parseCustomDate(offer.OfferEndDate);
+        const isNotExpired = endDate >= new Date();
+        return matchesSearch && isActive && isNotExpired;
+    });
 
     const columns = [
         {
@@ -188,8 +204,18 @@ export default function OffersPage() {
                         id: offer.OfferId,
                         title: offer.OfferTitle,
                         type: offer.OfferTypeName,
-                        startDate: new Date(offer.OfferStartDate).toLocaleDateString(),
-                        endDate: new Date(offer.OfferEndDate).toLocaleDateString(),
+                        startDate: parseCustomDate(offer.OfferStartDate)
+                            .toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                            }),
+                        endDate: parseCustomDate(offer.OfferEndDate)
+                            .toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                            }),
                         status: offer.IsActive,
                     }))}
                     bordered

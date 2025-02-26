@@ -12,6 +12,12 @@ import { DatesTab } from "@/components/offers/Dates"
 import { DetailsTab } from "@/components/offers/Details"
 import { Services } from "@/components/offers/Services"
 
+
+interface OfferType {
+    OfferTypeId: number
+    OfferTypeName: string
+}
+
 export function OfferForm() {
     const searchParams = useSearchParams();
     const [currentTab, setCurrentTab] = useState<string>("meta")
@@ -45,6 +51,27 @@ export function OfferForm() {
         },
     })
 
+     const [offerTypes, setOfferTypes] = useState<OfferType[]>([])
+    
+        useEffect(() => {
+            const fetchOfferTypes = async () => {
+                try {
+                    const response = await fetch('https://api.nixtour.com/api/List/OfferTypeList')
+                    const data = await response.json()
+                    if (data.Success) {
+                        setOfferTypes(data.Data)
+                    }
+                } catch (error) {
+                    console.error('Error fetching offer types:', error)
+                }
+            }
+    
+            fetchOfferTypes()
+        }, [])
+
+
+        
+
     useEffect(() => {
         const offerData = searchParams.get('offerData');
         if (offerData) {
@@ -72,7 +99,7 @@ export function OfferForm() {
                     offerEndDate: parsedData.OfferEndDate ? new Date(parsedData.OfferEndDate) : null,
                     travelStartDate: parsedData.TravelStartDate ? new Date(parsedData.TravelStartDate) : null,
                     travelEndDate: parsedData.TravelEndDate ? new Date(parsedData.TravelEndDate) : null,
-                    discountDescription: parsedData.DiscountDesc,
+                    discountDesc: parsedData.DiscountDesc,
                     cancellationPolicy: parsedData.CancellationPolicy,
                     termsConditions: parsedData.TermsConditions,
                     bannerUrl: parsedData.BannerUrl,
@@ -94,14 +121,16 @@ export function OfferForm() {
 
     const tabs = ["meta", "page", "dates", "details", "services"]
 
-    const handleNext = () => {
+    const handleNext = (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent form submission
         const currentIndex = tabs.indexOf(currentTab)
         if (currentIndex < tabs.length - 1) {
             setCurrentTab(tabs[currentIndex + 1])
         }
     }
 
-    const handlePrevious = () => {
+    const handlePrevious = (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent form submission
         const currentIndex = tabs.indexOf(currentTab)
         if (currentIndex > 0) {
             setCurrentTab(tabs[currentIndex - 1])
@@ -127,6 +156,7 @@ export function OfferForm() {
     }
 
     const handleFormSubmit = async (data: FormValues) => {
+        
         try {
             if (data.banner instanceof File) {
                 const bannerPath = await uploadImage(data.banner)
@@ -145,8 +175,8 @@ export function OfferForm() {
                 Description: data.description,
                 Keywords: data.canonicalTag,
                 OfferTitle: data.title,
-                OfferTypeId: 1,
-                OfferTypeName: data.offerType,
+                OfferTypeId: offerTypes.find(type => type.OfferTypeName === data.offerTypeName)?.OfferTypeId || 0,
+                OfferTypeName: data.offerTypeName,
                 AirlineId: data.airlineId,
                 CityId: data.cityId,
                 Other: data.other,
@@ -159,9 +189,9 @@ export function OfferForm() {
                 TermsConditions: data.termsConditions,
                 BannerUrl: data.bannerUrl,
                 ThumbnailUrl: data.thumbnailUrl,
-                SessionId: localStorage.getItem('sessionId') || "syst",
-                CreateId: 101,
-                IsActive: data.isActive,
+                SessionId: "syst",
+                CreateId: "101",
+                IsActive: "Y",
                 OfferDetails: data.services.map(service => ({
                     Services: service.service,
                     MinBookingAmt: service.minBooking,
@@ -192,7 +222,13 @@ export function OfferForm() {
     return (
         <Form {...form}>
             <form className="mt-6" onSubmit={form.handleSubmit(handleFormSubmit)}>
-                <Tabs value={currentTab} onValueChange={setCurrentTab}>
+                <Tabs 
+                    value={currentTab} 
+                    onValueChange={(value) => {
+                        // Prevent form submission when changing tabs
+                        setCurrentTab(value)
+                    }}
+                >
                     <TabsList className="grid w-full grid-cols-5">
                         <TabsTrigger value="meta">Meta Data</TabsTrigger>
                         <TabsTrigger value="page">Page Data</TabsTrigger>
@@ -202,7 +238,7 @@ export function OfferForm() {
                     </TabsList>
 
                     <MetaDataTab control={form.control} />
-                    <PageDataTab control={form.control} />
+                    <PageDataTab control={form.control} form={form} />
                     <DatesTab control={form.control} />
                     <DetailsTab control={form.control} />
                     <Services

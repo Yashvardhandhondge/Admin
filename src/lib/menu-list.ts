@@ -45,7 +45,7 @@ export function getMenuList(pathname: string): Group[] {
               label: "Airlines"
             },
             {
-              href: "/offers",
+              href: "/offerpage",
               label: "Offers"
             }
           ]
