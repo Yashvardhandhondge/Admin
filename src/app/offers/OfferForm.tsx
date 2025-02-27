@@ -11,6 +11,7 @@ import { PageDataTab } from "@/components/offers/PageData"
 import { DatesTab } from "@/components/offers/Dates"
 import { DetailsTab } from "@/components/offers/Details"
 import { Services } from "@/components/offers/Services"
+import { useRouter } from "next/navigation"
 
 
 interface OfferType {
@@ -21,6 +22,9 @@ interface OfferType {
 export function OfferForm() {
     const searchParams = useSearchParams();
     const [currentTab, setCurrentTab] = useState<string>("meta")
+    const [isEditing, setIsEditing] = useState<boolean>(false)
+    const [offerId, setOfferId] = useState<string | null>(null)
+    const router = useRouter()
     const form = useForm<FormValues>({
         defaultValues: {
             title: "",
@@ -83,7 +87,7 @@ export function OfferForm() {
                 console.log('Parsed offer data:', parsedData);
                 
                 const formData = {
-                    title: parsedData.OfferTitle,
+                    title: parsedData.Title,
                     description: parsedData.Description,
                     url: parsedData.Url,
                     canonicalTag: parsedData.CanonicalTag,
@@ -112,6 +116,8 @@ export function OfferForm() {
                 };
 
                 form.reset(formData);
+                setIsEditing(true);
+                setOfferId(parsedData.OfferId);
                 
             } catch (error) {
                 console.error('Error parsing offer data:', error);
@@ -171,13 +177,13 @@ export function OfferForm() {
             
             
 
-            const apiPayload = {
+            const apiPayload:any = {
                 Url: data.url,
                 CanonicalTag: data.canonicalTag,
                 Title: data.title,
                 Description: data.description,
                 Keywords: data.canonicalTag,
-                OfferTitle: data.title,
+                OfferTitle: data.offerTitle,
                 OfferTypeId: offerTypes.find(type => type.OfferTypeName === data.offerTypeName)?.OfferTypeId || 0,
                 OfferTypeName: data.offerTypeName,
                 AirlineId: data.airlineId,
@@ -202,6 +208,12 @@ export function OfferForm() {
                 }))
             }
 
+            if(isEditing && offerId) {
+                apiPayload.SessionId = "syst"
+                apiPayload.CreateId = "101",
+                apiPayload.OfferId = offerId
+            }
+
             const response = await fetch('https://api.nixtour.com/api/CMSOffer/OfferSave', {
                 method: 'POST',
                 headers: {
@@ -215,6 +227,8 @@ export function OfferForm() {
             if (!result.Success) {
                 throw new Error(result.Error || 'Failed to save offer')
             }
+            router.push('/offerpage')
+            
             
         } catch (error) {
             console.error('Error processing form:', error)

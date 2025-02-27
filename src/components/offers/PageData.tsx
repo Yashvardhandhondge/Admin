@@ -94,6 +94,22 @@ export function PageDataTab({ control, form }: PageDataTabProps) {
                     <CardTitle>Page Data</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    <FormField
+                        control={control}
+                        name="offerTitle"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Offer Title</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        {...field}
+                                        placeholder="Enter offer title"
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+
                     <div className="grid grid-cols-2 gap-4">
                         <FormField
                             control={control}
