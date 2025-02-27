@@ -168,6 +168,9 @@ export function OfferForm() {
                 data.thumbnailUrl = thumbnailPath
             }
 
+            
+            
+
             const apiPayload = {
                 Url: data.url,
                 CanonicalTag: data.canonicalTag,
@@ -208,7 +211,6 @@ export function OfferForm() {
             })
 
             const result = await response.json()
-            console.log('Offer save response:', result)
 
             if (!result.Success) {
                 throw new Error(result.Error || 'Failed to save offer')

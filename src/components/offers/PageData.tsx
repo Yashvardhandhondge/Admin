@@ -19,8 +19,21 @@ interface OfferType {
     OfferTypeName: string
 }
 
+interface Airline {
+    AirlineId: number;
+    AirlineName: string;
+}
+
+interface City {
+    Id: number;
+    CityName: string;
+}
+
 export function PageDataTab({ control, form }: PageDataTabProps) {
     const [offerTypes, setOfferTypes] = useState<OfferType[]>([])
+    const [airlines, setAirlines] = useState<Airline[]>([])
+    const [cities, setCities] = useState<City[]>([])
+    const selectedOfferType = form.watch("offerTypeName")
 
     useEffect(() => {
         const fetchOfferTypes = async () => {
@@ -37,6 +50,42 @@ export function PageDataTab({ control, form }: PageDataTabProps) {
 
         fetchOfferTypes()
     }, [])
+
+    useEffect(() => {
+        const fetchAirlines = async () => {
+            try {
+                const response = await fetch('https://api.nixtour.com/api/List/AirlineList')
+                const data = await response.json()
+                if (data.Success) {
+                    setAirlines(data.Data)
+                }
+            } catch (error) {
+                console.error('Error fetching airlines:', error)
+            }
+        }
+
+        if (selectedOfferType === "Airline") {
+            fetchAirlines()
+        }
+    }, [selectedOfferType])
+
+    useEffect(() => {
+        const fetchCities = async () => {
+            try {
+                const response = await fetch('https://api.nixtour.com/api/List/CityList')
+                const data = await response.json()
+                if (data.Success) {
+                    setCities(data.Data)
+                }
+            } catch (error) {
+                console.error('Error fetching cities:', error)
+            }
+        }
+
+        if (selectedOfferType === "Hotel" || selectedOfferType === "Holiday") {
+            fetchCities()
+        }
+    }, [selectedOfferType])
 
     return (
         <TabsContent value="page" className="space-y-4">
@@ -147,6 +196,70 @@ export function PageDataTab({ control, form }: PageDataTabProps) {
                                 </FormItem>
                             )}
                         />
+
+                        {selectedOfferType === "Airline" && (
+                            <FormField
+                                control={control}
+                                name="airlineId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Select Airline</FormLabel>
+                                        <Select
+                                            onValueChange={(value) => field.onChange(parseInt(value))}
+                                            value={field.value?.toString()}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select airline" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {airlines.map((airline) => (
+                                                    <SelectItem
+                                                        key={airline.AirlineId}
+                                                        value={airline.AirlineId.toString()}
+                                                    >
+                                                        {airline.AirlineName}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+
+                        {(selectedOfferType === "Hotel" || selectedOfferType === "Holiday") && (
+                            <FormField
+                                control={control}
+                                name="cityId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Select City</FormLabel>
+                                        <Select
+                                            onValueChange={(value) => field.onChange(parseInt(value))}
+                                            value={field.value?.toString()}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select city" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {cities.map((city) => (
+                                                    <SelectItem
+                                                        key={city.Id}
+                                                        value={city.Id.toString()}
+                                                    >
+                                                        {city.CityName}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                        )}
                     </div>
                 </CardContent>
             </Card>

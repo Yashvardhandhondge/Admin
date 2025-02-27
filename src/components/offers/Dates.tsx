@@ -56,6 +56,45 @@ export function DatesTab({ control }: DatesTabProps) {
                             )}
                         />
                     </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={control}
+                            name="travelStartDate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Travel Start Date</FormLabel>
+                                    <FormControl>
+                                        <DatePicker
+                                            value={field.value ? moment(field.value) : null}
+                                            onChange={(date) => field.onChange(date ? date.toDate() : null)}
+                                            format="YYYY-MM-DD"
+                                            picker="date"
+                                            allowClear
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={control}
+                            name="travelEndDate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Travel End Date</FormLabel>
+                                    <FormControl>
+                                        <DatePicker
+                                            value={field.value ? moment(field.value) : null}
+                                            onChange={(date) => field.onChange(date ? date.toDate() : null)}
+                                            format="YYYY-MM-DD"
+                                            picker="date"
+                                            allowClear
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </CardContent>
             </Card>
         </TabsContent>
