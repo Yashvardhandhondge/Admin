@@ -90,6 +90,7 @@ export default function AirLineInfo({ data, updateData, onValidationChange }: Ai
             if (!data.FlightStatusUrl) newErrors.FlightStatusUrl = "Flight Status URL is required."
             if (!data.FlightTrackingUrl) newErrors.FlightTrackingUrl = "Tracking URL is required."
             if (!data.CSNo) newErrors.CSNo = "Customer Service No. is required."
+            if (data.Domestic == 'N' && data.International == 'N') newErrors.Type = "Airline Type is required."
             setErrors(newErrors)
             onValidationChange(Object.keys(newErrors).length === 0)
         }
@@ -150,6 +151,7 @@ export default function AirLineInfo({ data, updateData, onValidationChange }: Ai
                             <Label htmlFor="International">International</Label>
                         </div>
                     </div>
+                    {errors.Type && <p className="text-sm text-red-500">{errors.Type}</p>}
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="IataCode">IATA</Label>
