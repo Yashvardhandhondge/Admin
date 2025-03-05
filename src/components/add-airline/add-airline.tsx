@@ -144,8 +144,8 @@ export default function AddAirlineForm() {
 
         if (airlineData) {
             try {
-                const parsedData = JSON.parse(decodeURIComponent(airlineData));
-                console.log('Parsed airline data:', parsedData);
+                
+                const parsedData = JSON.parse(airlineData);
                 setFormData((prev) => ({
                     ...prev,
                     ...parsedData,

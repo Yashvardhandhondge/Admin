@@ -164,25 +164,30 @@ export default function Route({ data, updateData, onValidationChange }: RoutePro
                                 <TableCell>
                                     <Input
                                         type="time"
+                                        step="60"
                                         value={route.DepartureTime}
                                         onChange={(e) => updateRoute(index, 'DepartureTime', e.target.value)}
+                                        className="[&::-webkit-time-picker-indicator]:appearance-none"
                                     />
                                     {errors[`DepartureTime-${index}`] && <div className="text-xs text-red-500">{errors[`DepartureTime-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Input
                                         type="time"
+                                        step="60"
                                         value={route.ArrivalTime}
                                         onChange={(e) => updateRoute(index, 'ArrivalTime', e.target.value)}
+                                        className="[&::-webkit-time-picker-indicator]:appearance-none"
                                     />
                                     {errors[`ArrivalTime-${index}`] && <div className="text-xs text-red-500">{errors[`ArrivalTime-${index}`]}</div>}
                                 </TableCell>
                                 <TableCell>
                                     <Input
-                                        type='time'
-                                        placeholder="2h 30m"
+                                        type="time"
+                                        step="60"
                                         value={route.Duration}
                                         onChange={(e) => updateRoute(index, 'Duration', e.target.value)}
+                                        className="[&::-webkit-time-picker-indicator]:appearance-none"
                                     />
                                     {errors[`Duration-${index}`] && <div className="text-xs text-red-500">{errors[`Duration-${index}`]}</div>}
                                 </TableCell>
